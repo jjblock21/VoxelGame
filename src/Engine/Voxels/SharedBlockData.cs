@@ -1,6 +1,4 @@
-﻿using Minecraft.Game.Blocks;
-
-namespace VoxelGame.Engine.Voxels
+﻿namespace VoxelGame.Engine.Voxels
 {
     public class SharedBlockData
     {

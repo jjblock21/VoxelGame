@@ -1,5 +1,4 @@
-﻿using Minecraft.Framework;
-using VoxelGame.Game;
+﻿using VoxelGame.Game;
 
 namespace VoxelGame
 {
