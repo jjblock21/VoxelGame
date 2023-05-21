@@ -15,7 +15,7 @@ namespace VoxelGame.Game
 {
     public class Minecraft
     {
-        private FlyingCamera? _camera;
+        private SpectatorCamera? _camera;
         private FrameCounter _frameCounter;
         private Texture2D _hudTexture;
 
@@ -115,7 +115,7 @@ namespace VoxelGame.Game
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
-            _camera = new FlyingCamera(Window.Size, 70, new Vector3(0, 0, -3), 0, 0);
+            _camera = new SpectatorCamera(Window.Size, 70, new Vector3(0, 0, -3), 0, 0);
         }
 
         // Loading assets and expensive calculations.

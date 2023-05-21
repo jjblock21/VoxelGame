@@ -49,7 +49,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             /// </summary>
             NoData = 0,
             /// <summary>
-            /// The chunk has its data and is waiting for the instuction to build its mesh.
+            /// The chunk has its data and is waiting to have its mesh built.
             /// </summary>
             HasData = 1,
             /// <summary>
@@ -63,7 +63,6 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Disposed = 0
         }
 
-        // TODO: Mark a still pending builder task, so that no new ones are dispatched if it hasn't started yet.
         public enum AsyncBuildStage
         {
             None,

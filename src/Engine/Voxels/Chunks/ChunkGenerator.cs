@@ -43,8 +43,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 if (val < 0.35) blocks[i.X, i.Y, i.Z] = BlockType.Earth;
             });
 
-            //TODO: Figure out a way to lock the chunks block object if it is null.
-            // Maybe we could also not lock it if we made sure not to access the array while the build stage is set to Pending.
+            // Not locking this, just need to make sure to not access it while the build stage is set to Pending.
             chunk.Blocks = blocks;
 
             return chunk;

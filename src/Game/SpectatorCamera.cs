@@ -40,6 +40,9 @@ namespace VoxelGame.Game
             Vector3 right = _transformMatrix.GetRightRaw() * discardY;
             right.NormalizeFast();
 
+            McWindow.Logger.Debug(forward);
+            McWindow.Logger.Debug(Yaw);
+
             // Build input vector from keyboard input.
             Vector3 input = Vector3.Zero;
 

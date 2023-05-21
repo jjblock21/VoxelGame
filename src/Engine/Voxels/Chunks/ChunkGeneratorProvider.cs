@@ -5,13 +5,13 @@ namespace VoxelGame.Engine.Voxels.Chunks
 {
     public class ChunkGeneratorProvider
     {
-        private ThreadLocal<ChunkGenerator> _processor;
+        private ThreadLocal<ChunkGenerator> _generator;
         private World _world;
 
         public ChunkGeneratorProvider(World world)
         {
             _world = world;
-            _processor = new ThreadLocal<ChunkGenerator>(() => new ChunkGenerator());
+            _generator = new ThreadLocal<ChunkGenerator>(() => new ChunkGenerator());
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             Task.Factory.StartNew(() =>
             {
-                _processor.Value!.Generate(chunk);
+                _generator.Value!.Generate(chunk);
 
                 // Stage is marked as volatile.
                 chunk.GenStage = Chunk.GenStageEnum.HasData;
@@ -54,14 +54,24 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 Vector3i location = chunk!.Location + World.GetDirAsVector(dir);
                 Chunk? toBuild = _world.TryGetChunk(location);
 
-                if (toBuild != null && (
-                    //TODO: Perhaps change this os only chunks who have all their neighbours created already and have a mesh are rebuilt to save uneccessary rebuilds (might also prevent the badly fixed bug where some neighbouring chunks of chunks being rebuilt are created but not initialized)
-
-                    // Build the chunk if it doesn't have a mesh yet and all its neighbours are in their final state.
-                    toBuild.GenStage == Chunk.GenStageEnum.HasData && CheckNeighboursFinal(location) ||
-                    // Rebuild the chunk if it has a mesh that needs to connect to the current chunks mesh later on.
-                    toBuild.GenStage == Chunk.GenStageEnum.HasMesh // This is not neccessary for dir = 7 / location = (0,0,0) but shouldn't cause problems.
-                    ))
+                /*
+                 * This piece of code requires a longer explanation:
+                 * There are two cases where the first condition is true:
+                 * 1. A chunk has data but no mesh.
+                 * 2. A chunk has data and a mesh.
+                 * 
+                 * If a chunk has no mesh yet, we check its neighbors, and if all are in their "final" state, we build the chunk's mesh.
+                 * "Final" means that a chunk has been generated or is missing from the collection, 
+                 * in which case it's probably still outside render distance and won't be generated yet.
+                 * 
+                 * If a chunk already has a mesh, we also need to rebuild it, since a new neighbor was generated,
+                 * and its mesh needs to connect to the current chunks.
+                 * Here we also check if all neighbors are in their final state, to avoid building the chunk twice, if,
+                 * for example, two new neighbors were generated.
+                 * This is technically not necessary for dir = 7 / location = (0,0,0) but shouldn't cause problems.
+                 */
+                if (toBuild != null && toBuild.GenStage != Chunk.GenStageEnum.NoData
+                    && CheckNeighboursFinal(location))
                 {
                     _world.ChunkBuilder.BuildChunk(toBuild);
                 }
@@ -69,7 +79,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         }
 
         /// <summary>
-        /// Checks if all surroudning chunks have data or aren't loaded yet.
+        /// Checks if all surrounding chunks are "final".
         /// </summary>
         private bool CheckNeighboursFinal(Vector3i location)
         {
