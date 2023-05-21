@@ -4,7 +4,7 @@ using VoxelGame.Framework;
 namespace VoxelGame.Engine.Rendering
 {
     /// <summary>
-    /// Abstraction for texture handle of type TextureTarget.Texture2D
+    /// Abstraction for an OpenGL texture object.
     /// </summary>
     public struct Texture2D : IEquatable<Texture2D>, IHasDriverResources
     {
@@ -23,6 +23,7 @@ namespace VoxelGame.Engine.Rendering
             Handle = GL.GenTexture();
             Width = width;
             Height = height;
+
             _initialized = false;
         }
 
@@ -42,6 +43,7 @@ namespace VoxelGame.Engine.Rendering
         public void SetData(byte[] imageData)
         {
             if (_initialized) throw new InvalidOperationException("Texture already has data.");
+
             GL.BindTexture(TextureTarget.Texture2D, Handle);
             GLHelper.ApplyDefaultTexParams();
             GL.TexImage2D(TextureTarget.Texture2D, 0, _internalFormat, Width, Height, 0, _format, _type, imageData);
@@ -53,7 +55,23 @@ namespace VoxelGame.Engine.Rendering
         /// </summary>
         public void Free()
         {
-            GL.DeleteTexture(Handle);
+            if (_initialized) GL.DeleteTexture(Handle);
+        }
+
+        #region Static
+        /// <summary>
+        /// Creates a texure, copies the images data into the texture and disposes of the image.
+        /// </summary>
+        /// <param name="image">Image to create the texture from</param>
+        public static Texture2D FromImage(Image<Rgba32> image)
+        {
+            byte[] buffer = new byte[image.Width * image.Height * 4];
+            image.CopyPixelDataTo(buffer);
+            image.Dispose();
+
+            Texture2D texture = new Texture2D(image.Width, image.Height);
+            texture.SetData(buffer);
+            return texture;
         }
 
         private static PixelInternalFormat _internalFormat = PixelInternalFormat.Rgba;
@@ -65,12 +83,13 @@ namespace VoxelGame.Engine.Rendering
         /// </summary>
         /// <param name="internalFormat">Internal representation.</param>
         /// <param name="format">Input image format.</param>
-        public static void TextureFormat(PixelInternalFormat internalFormat, PixelFormat format, PixelType type)
+        public static void SetTextureFormat(PixelInternalFormat internalFormat, PixelFormat format, PixelType type)
         {
             _internalFormat = internalFormat;
             _format = format;
             _type = type;
         }
+        #endregion
 
         public bool Equals(Texture2D other) => Handle == other.Handle;
         public override bool Equals(object? obj) => obj is Texture2D && Equals((Texture2D)obj);

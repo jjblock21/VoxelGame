@@ -49,7 +49,9 @@ namespace VoxelGame.Engine
                 texture.Mutate(x => x.Resize(_tileWidth, _tileHeight));
 
             // Draw texture onto the atlas texture.
-            ImageUtility.Combine(Texture, texture, _currentSlot);
+            Texture.Mutate(c => c.DrawImage(texture, _currentSlot, 1));
+            texture.Dispose();
+
             NextSlot();
 
             // Put texture coordinates for opengl into array.

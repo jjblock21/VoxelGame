@@ -137,27 +137,18 @@ namespace VoxelGame.Game
             SpriteBatch = new SpriteBatch(spriteShader, 16, Window.Size);
 
             ErrorHandler.Section("Intialize fonts");
-            Image<Rgba32> fontAtlas = Resources.ReadImage("fonts/default.png");
-            Texture2D fontTexture = new Texture2D(fontAtlas.Width, fontAtlas.Height);
-            fontTexture.SetData(ImageUtility.CopyData(fontAtlas));
-            fontAtlas.Dispose();
 
+            Texture2D fontTexture = Texture2D.FromImage(Resources.ReadImage("fonts/default.png"));
             GlyphAtlas glyphAtlas = new GlyphAtlas(fontTexture, 5, 6);
             TextRenderer = new TextRenderer(glyphAtlas, SpriteBatch, TextRenderer.Settings.Default);
 
             ErrorHandler.Section("Load textures");
-            Image<Rgba32> hudImg = Resources.ReadImage("textures/hud.png");
-            byte[] hudImgBuffer = ImageUtility.CopyData(hudImg);
-            hudImg.Dispose();
-            _hudTexture = new Texture2D(hudImg.Width, hudImg.Height);
-            _hudTexture.SetData(hudImgBuffer);
+            _hudTexture = Texture2D.FromImage(Resources.ReadImage("textures/hud.png"));
 
             InitBlocks();
 
-            byte[] buffer = ImageUtility.CopyData(TextureAtlas.Texture);
-            TextureAtlas.Texture.Dispose();
-            Texture2D worldTexture = new Texture2D(TextureAtlas.Width, TextureAtlas.Height);
-            worldTexture.SetData(buffer);
+            // Upload the gnerated texture atlas to OpenGL.
+            Texture2D worldTexture = Texture2D.FromImage(TextureAtlas.Texture);
 
             ErrorHandler.Section("Init world");
 
