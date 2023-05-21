@@ -6,7 +6,7 @@ using static VoxelGame.Framework.Helpers.MethodImplConstants;
 namespace VoxelGame.Framework.Helpers
 {
     /// <summary>
-    /// Another Math Helper, providing some more functions and shorter names.
+    /// Math Helpher
     /// </summary>
     public static class MathH
     {
@@ -17,6 +17,7 @@ namespace VoxelGame.Framework.Helpers
         }
 
         [MethodImpl(INLINE)]
+        // To shorten the name
         public static float ToRad(float degrees)
         {
             return MathHelper.DegreesToRadians(degrees);
