@@ -1,0 +1,116 @@
+﻿using Minecraft.Framework.Helpers;
+using Minecraft.Game.Blocks;
+using OpenTK.Mathematics;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Minecraft.Framework
+{
+    public class TextureAtlasOld
+    {
+        private readonly BlockTextures[] _blocks;
+        private readonly Image<Rgba32> _texture;
+
+        private int rows, columns;
+        private int tileSize, width, height;
+        private Point nextSlot;
+
+        public TextureAtlasOld(int columns, int rows, int tileSize)
+        {
+            _blocks = new BlockTextures[columns * rows];
+            _texture = new Image<Rgba32>(tileSize * columns, tileSize * rows);
+            this.rows = rows;
+            this.columns = columns;
+            this.tileSize = tileSize;
+            width = tileSize * columns;
+            height = tileSize * rows;
+            nextSlot = new Point(0, 0);
+        }
+
+        /// <summary>
+        /// Adds a texture to the texture atlas.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public void AddTexture(Image<Rgba32> image)
+        {
+            if (nextSlot.Y >= height)
+                throw new InvalidOperationException("No more space on texture atlas.");
+
+            ImageUtility.Combine(_texture, image, nextSlot);
+
+            nextSlot.X += tileSize;
+            if (nextSlot.X == width)
+            {
+                nextSlot.X = 0;
+                nextSlot.Y += tileSize;
+            }
+        }
+
+        /// <summary>
+        /// Maps a texture in the texture atlas to a selection of faces of a block.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="faces"></param>
+        /// <param name="textureIndex"></param>
+        public void MapToFaces(BlockType type, BlockFaces faces, int textureIndex)
+        {
+            int index = (int)type;
+            if (index < 0 || index >= _blocks.Length)
+                throw new ArgumentException("No place for block id " + index + " in textures array.");
+
+            if (_blocks[index].Equals(default(BlockTextures)))
+                _blocks[index] = new BlockTextures();
+
+            // Add uv coordinates for texture in atlas for faces.
+            _blocks[index].Textures.Add((faces, GetUVCoordsFromIndex(textureIndex)));
+        }
+
+        /// <summary>
+        /// Retrieves the texture coordinates for a face from the texture atlas.
+        /// </summary>
+        public float[] GetTexCoords(BlockType type, BlockFaces face)
+        {
+            BlockTextures block = _blocks[(int)type];
+            foreach ((BlockFaces faces, Vector2 coords) in block.Textures)
+            {
+                if ((faces & face) == face)
+                    return GetQuadTexCoords(coords);
+            }
+            return new float[8] { 0, 0, 0, 0, 0, 0, 0, 0 };
+        }
+
+        private float[] GetQuadTexCoords(Vector2 coords)
+        {
+            float left = coords.X;
+            float top = coords.Y;
+            float right = coords.X + (1f / (float)columns);
+            float bottom = coords.Y + (1f / (float)rows);
+            return new float[8] { left, top, left, bottom, right, bottom, right, top };
+        }
+
+        private Vector2 GetUVCoordsFromIndex(int index)
+        {
+            int x = index % columns;
+            int y = index / columns;
+            if (y >= rows) throw new IndexOutOfRangeException();
+            return new Vector2(x / columns, y / rows);
+        }
+
+        public Image<Rgba32> Texture { get => _texture; }
+    }
+
+    public struct BlockTextures
+    {
+        public List<(BlockFaces, Vector2)> Textures;
+
+        public BlockTextures()
+        {
+            Textures = new List<(BlockFaces, Vector2)>();
+        }
+    }
+}
