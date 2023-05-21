@@ -31,9 +31,7 @@ namespace VoxelGame.Engine.Voxels
         {
             GL.UseProgram(_worldShader);
             GLHelper.UniformMatrix4(_projViewMatHandle, _camera.ProjViewMat);
-
             _worldTexture.Bind();
-
             GL.BindVertexArray(_chunkMeshVao.Handle);
         }
 
