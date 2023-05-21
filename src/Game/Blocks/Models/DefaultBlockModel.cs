@@ -13,7 +13,6 @@ namespace VoxelGame.Game.Blocks.Models
             _textureIndex = textureIndex;
         }
 
-        // TODO: Make sure there is not thread locking during mesh generation here.
         public override bool BuildFace(uint dir, Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
         {
             // Just call the ready made method in the base class.

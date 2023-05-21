@@ -42,7 +42,6 @@ namespace VoxelGame.Game.Blocks.Models
         };
         #endregion
 
-        // TODO: Make sure there is not thread locking during mesh generation here.
         protected void MakeSingleFace(uint direction, Vector3i pos, int textureIndex, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
         {
             vertices = new float[NUM_VERTS * ChunkBuilder.BUFFER_STRIDE];

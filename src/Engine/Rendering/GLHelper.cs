@@ -25,8 +25,8 @@ namespace VoxelGame.Engine.Rendering
         public static void UnbindMeshBuffers()
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            GL.BindVertexArray(0);
         }
 
         /// <summary>

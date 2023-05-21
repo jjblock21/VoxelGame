@@ -15,6 +15,7 @@ namespace VoxelGame.Engine.Rendering.Text
             _settings = settings;
         }
 
+        // Temporary simple text rendering solution.
         public void DrawText(int x, int y, string text, int size, Vector4 color = default)
         {
             int offset = 0;

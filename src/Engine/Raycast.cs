@@ -131,11 +131,6 @@ namespace VoxelGame.Engine
             return a / MathF.Abs(right);
         }
 
-        private class RaycastInfo
-        {
-
-        }
-
         public struct Result
         {
             /// <summary>
