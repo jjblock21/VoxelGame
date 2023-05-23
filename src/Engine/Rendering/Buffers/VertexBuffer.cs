@@ -13,7 +13,7 @@ namespace VoxelGame.Engine.Rendering.Buffers
         private int _bufferStride;
         private int _valueSize;
 
-        ///// <param name="valueSize">Size in bytes of a single object of type <see cref="T"/>.</param>
+        // <param name="valueSize">Size in bytes of a single object of type <see cref="T"/>.</param>
         /// <param name="vertexSize">Number of consecutive values making up a single vertex.</param>
         public VertexBuffer(int vertexSize)
         {

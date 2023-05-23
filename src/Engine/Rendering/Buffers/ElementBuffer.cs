@@ -12,7 +12,7 @@ namespace VoxelGame.Engine.Rendering.Buffers
 
         private int _valueSize;
 
-        ///// <param name="valueSize">Size in bytes of a single object of type <see cref="T"/>.</param>
+        // <param name="valueSize">Size in bytes of a single object of type <see cref="T"/>.</param>
         public ElementBuffer()
         {
             _valueSize = Marshal.SizeOf(default(T));
