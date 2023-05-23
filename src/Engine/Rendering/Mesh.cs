@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using VoxelGame.Engine.Rendering.Buffers;
 using VoxelGame.Framework;
 
 namespace VoxelGame.Engine.Rendering
@@ -6,21 +7,19 @@ namespace VoxelGame.Engine.Rendering
     /// <summary>(!) All functions need to be called inside a GL context.</summary>
     public class Mesh : IHasDriverResources
     {
-        private BufferUsageHint _bufferUsage;
-        private int _vertexBufHandle;
-        private int _indexBufHandle;
-        private int _bufferStride;
+        private VertexBuffer<float> _vertexBuffer;
+        private ElementBuffer<uint> _indexBuffer;
+        private BufferUsageHint _usageHint;
 
-        /// <param name="bufferUsage">Buffer usage hint for OpenGL.</param>
-        /// <param name="vertexStride">Vertex buffer stride by number of values.</param>
-        public Mesh(int vertexStride, BufferUsageHint bufferUsage)
+        /// <param name="vertexSize">Number of consecutive values making up a single vertex.</param>
+        /// <param name="usageHint">Buffer usage hint for OpenGL.</param>
+        public Mesh(int vertexSize, BufferUsageHint usageHint)
         {
-            _bufferStride = vertexStride * sizeof(float);
-            _bufferUsage = bufferUsage;
+            _usageHint = usageHint;
+            _vertexBuffer = new VertexBuffer<float>(vertexSize);
+            _indexBuffer = new ElementBuffer<uint>();
             NumVertices = 0;
             NumIndices = 0;
-            _vertexBufHandle = GL.GenBuffer();
-            _indexBufHandle = GL.GenBuffer();
         }
 
         public int NumIndices { get; private set; }
@@ -35,10 +34,8 @@ namespace VoxelGame.Engine.Rendering
         /// <exception cref="InvalidOperationException"></exception>
         public void SetData(float[] vertices, uint[] indices)
         {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufHandle);
-            GL.BufferData(BufferTarget.ArrayBuffer, vertices.Length * sizeof(float), vertices, _bufferUsage);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBufHandle);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, indices.Length * sizeof(float), indices, _bufferUsage);
+            _vertexBuffer.BufferData(vertices, _usageHint);
+            _indexBuffer.BufferData(indices, _usageHint);
             NumVertices = vertices.Length;
             NumIndices = indices.Length;
         }
@@ -46,23 +43,22 @@ namespace VoxelGame.Engine.Rendering
         /// <summary>
         /// Binds the vertex buffer, index buffer and vertex array of the mesh.
         /// </summary>
-        /// <param name="bindingSlot">Slot to bind the vertex buffer to.</param>
+        /// <param name="bindingIndex">Slot to bind the vertex buffer to.</param>
         /// <exception cref="InvalidOperationException"></exception>
-        public void BindBuffers(int bindingSlot)
+        public void BindBuffers(int bindingIndex)
         {
             // Bind the vertex buffer to the vertex array
-            GL.BindVertexBuffer(bindingSlot, _vertexBufHandle, IntPtr.Zero, _bufferStride);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _indexBufHandle);
+            _vertexBuffer.BindRender(bindingIndex);
+            _indexBuffer.Bind();
         }
 
         /// <summary>
         /// Deletes all buffers used by the mesh (Buffers need to be unbound manually beforehand)
         /// </summary>
-        /// <exception cref="InvalidOperationException"></exception>
         public void Free()
         {
-            GL.DeleteBuffer(_vertexBufHandle);
-            GL.DeleteBuffer(_indexBufHandle);
+            _vertexBuffer.Free();
+            _indexBuffer.Free();
         }
     }
 }

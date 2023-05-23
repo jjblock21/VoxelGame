@@ -5,15 +5,15 @@ namespace VoxelGame.Framework
 {
     public static class ErrorHandler
     {
-        private static string? _section;
+        public static string? CurrentSection { get; private set; }
 
         /// <summary>
         /// Begin a new section and log errors from the previous one.
         /// </summary>
         public static void Section(string name)
         {
-            if (_section != null) CheckGLErrors();
-            _section = name;
+            if (CurrentSection != null) CheckGLErrors();
+            CurrentSection = name;
         }
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace VoxelGame.Framework
             ErrorCode code = GL.GetError();
             if (code != ErrorCode.NoError)
             {
-                McWindow.Logger.Warn($"OpenGL error in section '{_section}': ErrorCode.{code}");
+                McWindow.Logger.Warn($"OpenGL error in section '{CurrentSection}': ErrorCode.{code}");
             }
         }
     }

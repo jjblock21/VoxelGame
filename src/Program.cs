@@ -1,4 +1,5 @@
-﻿using VoxelGame.Game;
+﻿using VoxelGame.Framework;
+using VoxelGame.Game;
 
 namespace VoxelGame
 {

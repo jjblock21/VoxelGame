@@ -124,7 +124,7 @@ namespace VoxelGame.Game
             ErrorHandler.Section("Set up Vertex Arrays");
 
             // Create vertex attrib array.
-            VertexArrayObject chunkMeshVao = new VertexArrayObject(VertexAttribType.Float);
+            VertexArrayObject chunkMeshVao = new VertexArrayObject();
             chunkMeshVao.AddVertexAttrib(0, 3, 0); // Vertex position
             chunkMeshVao.AddVertexAttrib(0, 2, 3 * sizeof(float)); // Texture index
             chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness

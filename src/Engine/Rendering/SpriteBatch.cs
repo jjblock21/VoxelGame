@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using System.Runtime.CompilerServices;
+using VoxelGame.Engine.Rendering.Buffers;
 using VoxelGame.Game;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
@@ -20,10 +21,9 @@ namespace VoxelGame.Engine.Rendering
         public const int NUM_QUAD_VERTS = 4;
 
         private float[] _vertices;
-        private ushort[] _indices;
 
-        private int _vboHandle;
-        private int _eboHandle;
+        private VertexBuffer<float> _vbo;
+        private ElementBuffer<ushort> _ebo;
         private VertexArrayObject _vao;
 
         private ShaderHandle _shader;
@@ -45,32 +45,29 @@ namespace VoxelGame.Engine.Rendering
 
             // Generate buffer arrays.
             _vertices = new float[batchSize * QUAD_STRIDE];
-            _indices = new ushort[batchSize * quadIndices.Length];
 
-            // Populate index buffer.
+            // Generate quad indices.
+            ushort[] indices = new ushort[batchSize * quadIndices.Length];
             for (int i = 0; i < batchSize; i++)
             {
                 int j = i * quadIndices.Length;
                 for (int k = 0; k < quadIndices.Length; k++)
-                    _indices[j + k] = (ushort)(i * NUM_QUAD_VERTS + quadIndices[k]);
+                    indices[j + k] = (ushort)(i * NUM_QUAD_VERTS + quadIndices[k]);
             }
 
-            _vboHandle = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vboHandle);
-            // Create vertex buffer with its size set to the max batch size.
-            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StreamDraw);
+            // Generate index buffer and copy data into the buffer.
+            _ebo = new ElementBuffer<ushort>();
+            _ebo.BufferData(indices, BufferUsageHint.StaticDraw);
 
-            _vao = new VertexArrayObject(VertexAttribType.Float);
+            // Create vertax array object.
+            _vao = new VertexArrayObject();
             _vao.AddVertexAttrib(0, 2, 0); // Vertex position
             _vao.AddVertexAttrib(0, 2, 2 * sizeof(float)); // Texture coords
             _vao.AddVertexAttrib(0, 4, 4 * sizeof(float)); // Color
 
-            // Generate index buffer.
-            _eboHandle = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _eboHandle);
-
-            // Copy data into the buffer.
-            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(ushort), _indices, BufferUsageHint.StaticDraw);
+            // Create vertex buffer with its size set to the max batch size.
+            _vbo = new VertexBuffer<float>(VERTEX_STRIDE);
+            _vbo.BufferData(_vertices, BufferUsageHint.StreamDraw);
 
             _flushed = true;
         }
@@ -174,8 +171,8 @@ namespace VoxelGame.Engine.Rendering
             GL.UseProgram(_shader);
             GL.BindVertexArray(_vao.Handle);
 
-            GL.BindVertexBuffer(0, _vboHandle, IntPtr.Zero, BUFFER_STRIDE);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _eboHandle);
+            _ebo.Bind();
+            _vbo.BindRender(0);
             GL.DrawElements(PrimitiveType.Triangles, _numQuads * quadIndices.Length, DrawElementsType.UnsignedShort, 0);
 
             // Reset current index.
@@ -186,7 +183,7 @@ namespace VoxelGame.Engine.Rendering
         private void UploadBatch()
         {
             // Move vertex data into the vertex buffer.
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vboHandle);
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo.Handle);
             int bufferSize = _numQuads * QUAD_STRIDE * sizeof(float);
             unsafe
             {
