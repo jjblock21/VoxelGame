@@ -69,6 +69,15 @@ namespace VoxelGame.Framework
 
         #endregion
 
+        #region Operators
+
+        public bool Equals(PackedColor other) => Argb == other.Argb;
+        public override bool Equals(object? obj) => obj is Texture2D && Equals((Texture2D)obj);
+        public override int GetHashCode() => Argb.GetHashCode();
+
+        public static bool operator ==(PackedColor a, PackedColor b) => a.Equals(b);
+        public static bool operator !=(PackedColor a, PackedColor b) => !a.Equals(b);
+
         #endregion
     }
 }
