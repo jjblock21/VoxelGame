@@ -78,11 +78,7 @@ namespace VoxelGame.Engine.Rendering
         public static void CheckCompileErrors(int shader, string name)
         {
             GL.GetShader(shader, ShaderParameter.CompileStatus, out int result);
-            if (result == 0)
-            {
-                McWindow.Logger.Error($"Compilation of shader '{name}' failed:\n{GL.GetShaderInfoLog(shader)}");
-                Minecraft.Instance.Window.Close();
-            }
+            if (result == 0) throw new Exception($"Compilation of shader '{name}' failed:\n{GL.GetShaderInfoLog(shader)}");
         }
     }
 }
