@@ -1,4 +1,6 @@
-﻿namespace VoxelGame.Framework.Logging
+﻿using System;
+
+namespace VoxelGame.Framework.Logging
 {
     public class DefaultLogger : Logger
     {

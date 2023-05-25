@@ -1,4 +1,6 @@
-﻿namespace VoxelGame.Framework
+﻿using System;
+
+namespace VoxelGame.Framework
 {
     /// <summary>
     /// Simple class for determining the frame rate.

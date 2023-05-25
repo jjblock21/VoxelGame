@@ -10,8 +10,8 @@ using VoxelGame.Engine.Rendering.Text;
 using VoxelGame.Framework;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game.Blocks.Models;
-using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp;
 
 namespace VoxelGame.Game
 {
