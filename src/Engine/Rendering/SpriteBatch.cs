@@ -17,9 +17,6 @@ namespace VoxelGame.Engine.Rendering
             2, 1, 0, 3, 2, 0
         };
 
-        public const int VERTEX_STRIDE = 8;
-        public const int BUFFER_STRIDE = VERTEX_STRIDE * sizeof(float);
-
         public const int NUM_QUAD_VERTS = 4;
 
         private float[] _verts;
@@ -71,10 +68,10 @@ namespace VoxelGame.Engine.Rendering
             _vao.AddVertexAttrib(1, 4, 1 * sizeof(float)); // Color (in a seperate buffer)
 
             // Create the vertex buffers with its size set to the max batch size.
-            _vbo = new VertexBuffer<float>(VERTEX_STRIDE);
+            _vbo = new VertexBuffer<float>(4);
             _vbo.BufferData(_verts, BufferUsageHint.StreamDraw);
 
-            _colorVbo = new VertexBuffer<uint>(VERTEX_STRIDE);
+            _colorVbo = new VertexBuffer<uint>(1);
             _colorVbo.BufferData(_vertColors, BufferUsageHint.StreamDraw);
 
             _flushed = true;
