@@ -4,6 +4,8 @@ using System.Runtime.CompilerServices;
 using VoxelGame.Engine.Rendering.Buffers;
 using VoxelGame.Game;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
+using System;
+using VoxelGame.Framework;
 
 namespace VoxelGame.Engine.Rendering
 {
@@ -17,12 +19,14 @@ namespace VoxelGame.Engine.Rendering
 
         public const int VERTEX_STRIDE = 8;
         public const int BUFFER_STRIDE = VERTEX_STRIDE * sizeof(float);
-        public const int QUAD_STRIDE = VERTEX_STRIDE * NUM_QUAD_VERTS;
+
         public const int NUM_QUAD_VERTS = 4;
 
-        private float[] _vertices;
-
+        private float[] _verts;
+        private uint[] _vertColors;
         private VertexBuffer<float> _vbo;
+        private VertexBuffer<uint> _colorVbo;
+
         private ElementBuffer<ushort> _ebo;
         private VertexArrayObject _vao;
 
@@ -44,7 +48,8 @@ namespace VoxelGame.Engine.Rendering
             ChangeViewport(viewport);
 
             // Generate buffer arrays.
-            _vertices = new float[batchSize * QUAD_STRIDE];
+            _verts = new float[batchSize * 4 * NUM_QUAD_VERTS];
+            _vertColors = new uint[batchSize * NUM_QUAD_VERTS];
 
             // Generate quad indices.
             ushort[] indices = new ushort[batchSize * quadIndices.Length];
@@ -63,11 +68,14 @@ namespace VoxelGame.Engine.Rendering
             _vao = new VertexArrayObject();
             _vao.AddVertexAttrib(0, 2, 0); // Vertex position
             _vao.AddVertexAttrib(0, 2, 2 * sizeof(float)); // Texture coords
-            _vao.AddVertexAttrib(0, 4, 4 * sizeof(float)); // Color
+            _vao.AddVertexAttrib(1, 4, 1 * sizeof(float)); // Color (in a seperate buffer)
 
-            // Create vertex buffer with its size set to the max batch size.
+            // Create the vertex buffers with its size set to the max batch size.
             _vbo = new VertexBuffer<float>(VERTEX_STRIDE);
-            _vbo.BufferData(_vertices, BufferUsageHint.StreamDraw);
+            _vbo.BufferData(_verts, BufferUsageHint.StreamDraw);
+
+            _colorVbo = new VertexBuffer<uint>(VERTEX_STRIDE);
+            _colorVbo.BufferData(_vertColors, BufferUsageHint.StreamDraw);
 
             _flushed = true;
         }
@@ -110,8 +118,10 @@ namespace VoxelGame.Engine.Rendering
         /// <param name="color">Color to overlay on top of the texture in RGBA from 0f to 1f.</param>
         #endregion
         [MethodImpl(OPTIMIZE)] // Just in case.
-        public void Quad(int x, int y, int width, int height, Vector4i srcRect = default, Vector4 color = default)
+        public void Quad(int x, int y, int width, int height, Vector4i srcRect = default, Color color = default)
         {
+            if (srcRect == default) srcRect = Vector4i.Zero;
+
             // Convert the source rect from pixels into texture space.
             float tx = (float)srcRect.X / _texWidth;
             float ty = (float)srcRect.Y / _texHeight;
@@ -137,7 +147,7 @@ namespace VoxelGame.Engine.Rendering
         /// <param name="srcRect">Rectangle indicating the region of the currently bound texture to render on the quad in OpenGL texture coordinates.</param>
         /// <param name="color">Color to overlay on top of the texture in RGBA from 0f to 1f.</param>
         #endregion
-        public void Quad(int x, int y, int width, int height, Vector4 srcRect, Vector4 color = default)
+        public void Quad(int x, int y, int width, int height, Vector4 srcRect, Color color = default)
         {
             if (_numQuads >= _batchSize)
             {
@@ -148,7 +158,7 @@ namespace VoxelGame.Engine.Rendering
                 _flushed = false;
             }
 
-            if (color == default) color = Vector4i.Zero;
+            if (color == default) color = Color.Transparent;
 
             // Maybe move this into the shader.
             float ndcX = (float)(x * _screenToNdc.X) - 1f;
@@ -173,6 +183,8 @@ namespace VoxelGame.Engine.Rendering
 
             _ebo.Bind();
             _vbo.BindRender(0);
+            _colorVbo.BindRender(1);
+
             GL.DrawElements(PrimitiveType.Triangles, _numQuads * quadIndices.Length, DrawElementsType.UnsignedShort, 0);
 
             // Reset current index.
@@ -184,50 +196,52 @@ namespace VoxelGame.Engine.Rendering
         {
             // Move vertex data into the vertex buffer.
             GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo.Handle);
-            int bufferSize = _numQuads * QUAD_STRIDE * sizeof(float);
+            int coordBufferSize = _numQuads * 4 * NUM_QUAD_VERTS * sizeof(float);
             unsafe
             {
                 // Obtain a pointer to the start of the array.
-                fixed (float* ptr = _vertices)
+                fixed (float* ptr = _verts)
                     // Upload only the used region of the buffer to the gpu.
-                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, bufferSize, (IntPtr)ptr);
+                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, coordBufferSize, (IntPtr)ptr);
+            }
+
+            // Move color vertex data into the vertex buffer.
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _colorVbo.Handle);
+            int colorBufferSize = _numQuads * NUM_QUAD_VERTS * sizeof(uint);
+            unsafe
+            {
+                fixed (float* ptr = _verts)
+                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, colorBufferSize, (IntPtr)ptr);
             }
         }
 
         [MethodImpl(OPTIMIZE)]
-        private void BuildQuad(float x, float y, float w, float h, float tx, float ty, float tw, float th, Vector4 color)
+        private void BuildQuad(float x, float y, float w, float h, float tx, float ty, float tw, float th, Color color)
         {
-            int i = _numQuads * QUAD_STRIDE;
+            int i = _numQuads * 4 * NUM_QUAD_VERTS;
+            int j = _numQuads * NUM_QUAD_VERTS;
+
             // Vertex 1 (0, 1)
             PutVertex(i, x, y + h, tx, ty + th);
-            PutColor(i + 4, color);
+            _vertColors[j] = color.Argb;
             // Vertex 2 (0, 0)
-            PutVertex(i + 8, x, y, tx, ty);
-            PutColor(i + 12, color);
+            PutVertex(i + 4, x, y, tx, ty);
+            _vertColors[j + 1] = color.Argb;
             // Vertex 3 (1, 0)
-            PutVertex(i + 16, x + w, y, tx + tw, ty);
-            PutColor(i + 20, color);
+            PutVertex(i + 8, x + w, y, tx + tw, ty);
+            _vertColors[j + 2] = color.Argb;
             // Vertex 4 (1, 1)
-            PutVertex(i + 24, x + w, y + h, tx + tw, ty + th);
-            PutColor(i + 28, color);
+            PutVertex(i + 12, x + w, y + h, tx + tw, ty + th);
+            _vertColors[j + 3] = color.Argb;
         }
 
         [MethodImpl(INLINE)]
         private void PutVertex(int j, float vx, float vy, float vtx, float vty)
         {
-            _vertices[j] = vx;
-            _vertices[j + 1] = vy;
-            _vertices[j + 2] = vtx;
-            _vertices[j + 3] = vty;
-        }
-
-        [MethodImpl(INLINE)]
-        private void PutColor(int j, Vector4 color)
-        {
-            _vertices[j] = color.X;
-            _vertices[j + 1] = color.Y;
-            _vertices[j + 2] = color.Z;
-            _vertices[j + 3] = color.W;
+            _verts[j] = vx;
+            _verts[j + 1] = vy;
+            _verts[j + 2] = vtx;
+            _verts[j + 3] = vty;
         }
     }
 }
