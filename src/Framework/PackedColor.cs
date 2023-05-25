@@ -1,17 +1,20 @@
 ﻿using OpenTK.Mathematics;
+using System;
+using System.Reflection.Metadata;
+using VoxelGame.Engine.Rendering;
 
 namespace VoxelGame.Framework
 {
-    public struct Color
+    public struct PackedColor : IEquatable<PackedColor>
     {
         public readonly uint Argb;
 
-        public Color(Color color, uint alpha)
+        public PackedColor(PackedColor color, uint alpha)
         {
             Argb = (color.Argb & 0xFFFFFF00) | alpha << 24;
         }
 
-        public Color(float r, float g, float b, float a = 0)
+        public PackedColor(float r, float g, float b, float a = 0)
         {
             Argb = (uint)(a * 255) << 24 |
                    (uint)(r * 255) << 16 |
@@ -19,7 +22,7 @@ namespace VoxelGame.Framework
                    (uint)(b * 255);
         }
 
-        public Color(uint r, uint g, uint b, uint a = 255)
+        public PackedColor(uint r, uint g, uint b, uint a = 255)
         {
             Argb = a << 24 | r << 16 | g << 8 | b;
         }
@@ -52,17 +55,19 @@ namespace VoxelGame.Framework
 
         #region Predefined
 
-        static Color()
+        static PackedColor()
         {
-            White = new Color(1f, 1f, 1f);
-            Black = new Color(0f, 0f, 0f);
-            Transparent = new Color(0f, 0f, 0f, 0f);
+            White = new PackedColor(1f, 1f, 1f);
+            Black = new PackedColor(0f, 0f, 0f);
+            Transparent = new PackedColor(0f, 0f, 0f, 0f);
         }
 
         // Add more as needed.
-        public static readonly Color White;
-        public static readonly Color Black;
-        public static readonly Color Transparent;
+        public static readonly PackedColor White;
+        public static readonly PackedColor Black;
+        public static readonly PackedColor Transparent;
+
+        #endregion
 
         #endregion
     }

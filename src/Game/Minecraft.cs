@@ -228,7 +228,7 @@ namespace VoxelGame.Game
             SpriteBatch.Quad((int)(Window.ClientSize.X * 0.5f - 3.5f), (int)(Window.ClientSize.Y * 0.5f - 3.5f), 14, 14, new Vector4i(0, 0, 7, 7));
 
             // Render fps text background.
-            SpriteBatch.Quad(0, Window.Size.Y - 22, 100, 22, color: new Color(0f, 0f, 0f, 0.6f));
+            SpriteBatch.Quad(0, Window.Size.Y - 22, 100, 22, color: new PackedColor(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
             TextRenderer!.Begin();

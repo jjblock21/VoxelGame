@@ -118,7 +118,7 @@ namespace VoxelGame.Engine.Rendering
         /// <param name="color">Color to overlay on top of the texture in RGBA from 0f to 1f.</param>
         #endregion
         [MethodImpl(OPTIMIZE)] // Just in case.
-        public void Quad(int x, int y, int width, int height, Vector4i srcRect = default, Color color = default)
+        public void Quad(int x, int y, int width, int height, Vector4i srcRect = default, PackedColor color = default)
         {
             if (srcRect == default) srcRect = Vector4i.Zero;
 
@@ -147,7 +147,7 @@ namespace VoxelGame.Engine.Rendering
         /// <param name="srcRect">Rectangle indicating the region of the currently bound texture to render on the quad in OpenGL texture coordinates.</param>
         /// <param name="color">Color to overlay on top of the texture in RGBA from 0f to 1f.</param>
         #endregion
-        public void Quad(int x, int y, int width, int height, Vector4 srcRect, Color color = default)
+        public void Quad(int x, int y, int width, int height, Vector4 srcRect, PackedColor color = default)
         {
             if (_numQuads >= _batchSize)
             {
@@ -158,7 +158,7 @@ namespace VoxelGame.Engine.Rendering
                 _flushed = false;
             }
 
-            if (color == default) color = Color.Transparent;
+            if (color == default) color = PackedColor.Transparent;
 
             // Maybe move this into the shader.
             float ndcX = (float)(x * _screenToNdc.X) - 1f;
@@ -216,7 +216,7 @@ namespace VoxelGame.Engine.Rendering
         }
 
         [MethodImpl(OPTIMIZE)]
-        private void BuildQuad(float x, float y, float w, float h, float tx, float ty, float tw, float th, Color color)
+        private void BuildQuad(float x, float y, float w, float h, float tx, float ty, float tw, float th, PackedColor color)
         {
             int i = _numQuads * 4 * NUM_QUAD_VERTS;
             int j = _numQuads * NUM_QUAD_VERTS;
