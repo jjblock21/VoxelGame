@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using VoxelGame.Framework;
 
 namespace VoxelGame.Engine.Rendering.Text
 {
@@ -16,7 +17,7 @@ namespace VoxelGame.Engine.Rendering.Text
         }
 
         // Temporary simple text rendering solution.
-        public void DrawText(int x, int y, string text, int size, Vector4 color = default)
+        public void DrawText(int x, int y, string text, int size, Color color = default)
         {
             int offset = 0;
             int height = (int)(_glyphAtlas.GlyphAspect * size);
