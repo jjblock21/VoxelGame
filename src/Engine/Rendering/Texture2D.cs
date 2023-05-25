@@ -1,4 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using System;
 using VoxelGame.Framework;
 
 namespace VoxelGame.Engine.Rendering

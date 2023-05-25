@@ -1,4 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL4;
+using System;
 using VoxelGame.Game;
 
 namespace VoxelGame.Engine.Rendering
@@ -18,7 +19,7 @@ namespace VoxelGame.Engine.Rendering
         /// <exception cref="InvalidDataException">Throws when parsing the combined shader source fails.</exception>
         public static int Compile(string source, string logName)
         {
-            void Throw() { throw new InvalidDataException("Failed to parse shader " + logName); }
+            void Throw() { throw new Exception("Failed to parse shader " + logName); }
 
             if (string.IsNullOrEmpty(source)) Throw();
             source = source.Trim();

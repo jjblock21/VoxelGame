@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System;
 using System.Runtime.CompilerServices;
 
 namespace VoxelGame.Framework.Helpers

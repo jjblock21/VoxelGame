@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
 namespace VoxelGame.Engine

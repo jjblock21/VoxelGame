@@ -1,4 +1,10 @@
-﻿namespace VoxelGame.Framework
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System;
+using System.IO;
+
+namespace VoxelGame.Framework
 {
     public class Resources
     {

@@ -1,4 +1,6 @@
-﻿namespace VoxelGame.Framework.Logging
+﻿using System;
+
+namespace VoxelGame.Framework.Logging
 {
     /// <summary>
     /// My custom quickly thrown toghether logging solution, because I was to lazy to learn and implement any propper logging solutions.

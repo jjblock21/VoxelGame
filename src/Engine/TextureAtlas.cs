@@ -1,4 +1,7 @@
-﻿using VoxelGame.Framework.Helpers;
+﻿using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using System;
 
 namespace VoxelGame.Engine
 {
@@ -42,7 +45,7 @@ namespace VoxelGame.Engine
         public void AddTexture(Image<Rgba32> texture)
         {
             if (_currentIndex >= Size || _currentSlot.Y >= Height)
-                throw new OverflowException("Texture atlas is full!");
+                throw new Exception("Texture atlas is full!");
 
             // Resize image if it is the wrong size.
             if (texture.Width != _tileWidth || texture.Height != _tileHeight)

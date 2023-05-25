@@ -1,5 +1,8 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using VoxelGame.Engine.Rendering;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
