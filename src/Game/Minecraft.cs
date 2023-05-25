@@ -130,8 +130,8 @@ namespace VoxelGame.Game
             chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness
 
             ErrorHandler.Section("Load and compile shaders");
-            ShaderHandle spriteShader = ShaderHandle.CompileShader(Resources.ReadText("shaders/sprite.glsl"), "sprite.glsl");
-            ShaderHandle worldShader = ShaderHandle.CompileShader(Resources.ReadText("shaders/world.glsl"), "world.glsl");
+            int spriteShader = ShaderCompiler.Compile(Resources.ReadText("shaders/sprite.glsl"), "sprite.glsl");
+            int worldShader = ShaderCompiler.Compile(Resources.ReadText("shaders/world.glsl"), "world.glsl");
 
             ErrorHandler.Section("Create SpriteBatch");
             SpriteBatch = new SpriteBatch(spriteShader, 16, Window.Size);

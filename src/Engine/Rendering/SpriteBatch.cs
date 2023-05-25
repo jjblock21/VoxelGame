@@ -26,7 +26,7 @@ namespace VoxelGame.Engine.Rendering
         private ElementBuffer<ushort> _ebo;
         private VertexArrayObject _vao;
 
-        private ShaderHandle _shader;
+        private int _shader;
         private Vector2d _screenToNdc;
         private int _texWidth;
         private int _texHeight;
@@ -34,7 +34,7 @@ namespace VoxelGame.Engine.Rendering
         private int _batchSize;
         private bool _flushed;
 
-        public SpriteBatch(ShaderHandle spriteShader, int batchSize, Vector2i viewport)
+        public SpriteBatch(int spriteShader, int batchSize, Vector2i viewport)
         {
             // Prevent ushort overflow errors in index buffer.
             if (batchSize > 32768) throw new ArgumentException("Batch size can't be larger than 32768.");

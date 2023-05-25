@@ -10,13 +10,13 @@ namespace VoxelGame.Engine.Voxels
         private int _offsetVecHandle;
         private int _projViewMatHandle;
 
-        private ShaderHandle _worldShader;
+        private int _worldShader;
         private Texture2D _worldTexture;
         private VertexArrayObject _chunkMeshVao;
 
         private BaseCamera _camera;
 
-        public WorldRenderer(VertexArrayObject chunkMeshVao, ShaderHandle worldShader, Texture2D worldTexture, BaseCamera camera)
+        public WorldRenderer(VertexArrayObject chunkMeshVao, int worldShader, Texture2D worldTexture, BaseCamera camera)
         {
             _chunkMeshVao = chunkMeshVao;
             _worldShader = worldShader;
