@@ -1,6 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using System.Reflection.Metadata;
 using VoxelGame.Engine.Rendering;
 
 namespace VoxelGame.Framework
@@ -16,10 +15,10 @@ namespace VoxelGame.Framework
 
         public PackedColor(float r, float g, float b, float a = 0)
         {
-            Argb = (uint)(a * 255) << 24 |
-                   (uint)(r * 255) << 16 |
-                   (uint)(g * 255) << 8 |
-                   (uint)(b * 255);
+            Argb = (uint)(a * 255f) << 24 |
+                   (uint)(r * 255f) << 16 |
+                   (uint)(g * 255f) << 8 |
+                   (uint)(b * 255f);
         }
 
         public PackedColor(uint r, uint g, uint b, uint a = 255)
@@ -57,9 +56,9 @@ namespace VoxelGame.Framework
 
         static PackedColor()
         {
-            White = new PackedColor(1f, 1f, 1f);
-            Black = new PackedColor(0f, 0f, 0f);
-            Transparent = new PackedColor(0f, 0f, 0f, 0f);
+            White = new PackedColor(255, 255, 255);
+            Black = new PackedColor(0, 0, 0);
+            Transparent = new PackedColor(0, 0, 0, 0);
         }
 
         // Add more as needed.

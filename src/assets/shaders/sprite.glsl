@@ -2,8 +2,6 @@
 
 @program vertex
 
-#define COLOR_TO_FLOAT 0.00392156862f
-
 layout (location = 0) in vec2 aPos;
 layout (location = 1) in vec2 aTexCoord;
 layout (location = 2) in uint aColor;
@@ -16,11 +14,7 @@ void main() {
 	vTexCoord = aTexCoord;
 
 	// Unpack the color into a float vector.
-	float a = ((aColor >> 24) & 255) * COLOR_TO_FLOAT;
-	float r = ((aColor >> 16) & 255) * COLOR_TO_FLOAT;
-	float g = ((aColor >> 8) & 255) * COLOR_TO_FLOAT;
-	float b = (aColor & 255) * COLOR_TO_FLOAT;
-	vColor = vec4(r, g, b, a);
+	vColor = unpackUnorm4x8(aColor).rgba;
 }
 
 @program fragment

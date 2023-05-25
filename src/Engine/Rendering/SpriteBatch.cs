@@ -65,7 +65,7 @@ namespace VoxelGame.Engine.Rendering
             _vao = new VertexArrayObject();
             _vao.AddVertexAttrib(0, 2, 0); // Vertex position
             _vao.AddVertexAttrib(0, 2, 2 * sizeof(float)); // Texture coords
-            _vao.AddVertexAttrib(1, 4, 1 * sizeof(float)); // Color (in a seperate buffer)
+            _vao.AddVertexAttribI(1, 1, 0, VertexAttribIntegerType.UnsignedInt); // Color (in a seperate buffer)
 
             // Create the vertex buffers with its size set to the max batch size.
             _vbo = new VertexBuffer<float>(4);
@@ -207,7 +207,7 @@ namespace VoxelGame.Engine.Rendering
             int colorBufferSize = _numQuads * NUM_QUAD_VERTS * sizeof(uint);
             unsafe
             {
-                fixed (float* ptr = _verts)
+                fixed (uint* ptr = _vertColors)
                     GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, colorBufferSize, (IntPtr)ptr);
             }
         }
