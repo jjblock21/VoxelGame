@@ -1,9 +1,6 @@
 ﻿using OpenTK.Mathematics;
-using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
 using VoxelGame.Engine.Voxels.Chunks;
-using VoxelGame.Engine.Voxels.Chunks.MeshGen;
-using VoxelGame.Framework.Helpers;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
@@ -12,69 +9,51 @@ namespace VoxelGame.Engine.Voxels
 {
     public class World
     {
-        public readonly ConcurrentDictionary<Vector3i, Chunk> Chunks;
-
-        public readonly ChunkBuilderProvider ChunkBuilder;
-        public readonly ChunkGeneratorProvider ChunkGenerator;
-
+        private ChunkManager _chunkMgr;
         private WorldRenderer _worldRenderer;
 
         /// <param name="worldRenderer">Renderer rendering the world.</param>
-        /// <param name="attribArrBindingIndex">Biding point of the Vertex Attribute Array specifying the data layout in the chunks vertex buffers.</param>
         public World(WorldRenderer worldRenderer)
         {
-            Chunks = new ConcurrentDictionary<Vector3i, Chunk>();
-
-            ChunkBuilder = new ChunkBuilderProvider();
-            ChunkGenerator = new ChunkGeneratorProvider(this);
-
             _worldRenderer = worldRenderer;
+            _chunkMgr = new ChunkManager();
         }
 
-        public void DrawChunks()
+        public void Render()
         {
             _worldRenderer.Begin();
             // Note: I'm iterating over a dictionary here which is not the best idea, but I couldn't find a better collection satisfying all my needs.
             // Perhaps you could change this to only regenerate the enumerator every time the colection is modified?
             // Or make a custom unordered concurrent collection you can access through keys and which has fast iteration speeds if possible idk.
-            foreach (Chunk chunk in Chunks.Values)
+            foreach (Chunk chunk in _chunkMgr.Chunks.Values)
             {
                 if (chunk.GenStage == Chunk.GenStageEnum.HasMesh)
                     _worldRenderer.RenderChunk(chunk);
             }
         }
 
-        public void Free()
-        {
-            _worldRenderer.Free();
-            foreach (Chunk chunk in Chunks.Values)
-                chunk.Free();
-        }
-
         public void Update()
         {
-            // Manage chunk mesh rebuilds.
-            ChunkBuilder.Update();
+            _chunkMgr.Update();
         }
 
-        /// <summary>
-        /// Loads and unloads chunks to move the loaded region to be centered around <paramref name="centerChunk"/>.
-        /// </summary>
-        public void MoveLoadedRegion(Vector3i centerChunk)
+        public void Free()
         {
-            throw new NotImplementedException();
+            _chunkMgr.Free();
+            _worldRenderer.Free();
         }
 
-        #region Methods to manipulate blocks
-        /// <summary>
-        /// Attempts to retrieve a chunk in the world.
-        /// </summary>
+        // Probably temporary
+        public void GenChunk(Vector3i location) => _chunkMgr.Generator.GenChunk(location);
+
         /// <param name="location">Index of the chunk.</param>
         /// <returns><see langword="null"/> if the chunk is not loaded.</returns>
         public Chunk? TryGetChunk(Vector3i location)
         {
-            return Chunks.TryGetValue(location, out Chunk? c) ? c : null;
+            return _chunkMgr.Chunks.TryGetValue(location, out Chunk? c) ? c : null;
         }
+
+        #region Block methods
 
         /// <summary>
         /// Attempts to retrieve a block from the world.
@@ -83,8 +62,8 @@ namespace VoxelGame.Engine.Voxels
         /// <returns><see langword="false"/> if the chunk containing the block is not loaded.</returns>
         public bool TryGetBlock(Vector3i location, out BlockType block)
         {
-            (Vector3i ci, Vector3i bi) = GetChunkBlockIndex(location);
-            if (Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
+            (Vector3i ci, Vector3i bi) = ChunkManager.GetChunkBlockIndex(location);
+            if (_chunkMgr.Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
             {
                 block = c!.Blocks![bi.X, bi.Y, bi.Z];
                 return true;
@@ -102,8 +81,8 @@ namespace VoxelGame.Engine.Voxels
         public bool TryPlaceBlock(Vector3i location, BlockType type)
         {
             // Split absolute location into chunk & block indices and get the affected chunk.
-            (Vector3i ci, Vector3i bi) = GetChunkBlockIndex(location);
-            if (Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
+            (Vector3i ci, Vector3i bi) = ChunkManager.GetChunkBlockIndex(location);
+            if (_chunkMgr.Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
             {
                 // If nothing will change exit.
                 if (c.Blocks![bi.X, bi.Y, bi.Z] == type) return false;
@@ -120,13 +99,13 @@ namespace VoxelGame.Engine.Voxels
         [MethodImpl(OPTIMIZE)]
         private void RebuildAffected(Chunk chunk, Vector3i chunkIndex, int x, int y, int z)
         {
-            ChunkBuilder.BuildChunk(chunk, dontDefer: true);
+            _chunkMgr.Builder.BuildChunk(chunk, dontDefer: true);
 
             void rebuild(uint dir, int x, int y, int z)
             {
                 // Try to get the neighbour chunk in the corresponding direction.
-                Vector3i ci = chunkIndex + GetDirAsVector(dir);
-                if (Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
+                Vector3i ci = chunkIndex + DirToVector(dir);
+                if (_chunkMgr.Chunks.TryGetValue(ci, out Chunk? c) && c.GenStage != Chunk.GenStageEnum.NoData)
                 {
                     // Dont mark the chunk as dirty if the block next to the affected block is an air block.
                     if (c.Blocks![x, y, z] == BlockType.Air) return;
@@ -134,7 +113,7 @@ namespace VoxelGame.Engine.Voxels
                     // Rebuild the chunk if the block next to the affected block culls against it.
                     SharedBlockData data = Minecraft.Instance.BlockRegistry.GetData(c.Blocks[x, y, z]);
                     if ((data.Params & BlockParams.DontCull) == 0)
-                        ChunkBuilder.BuildChunk(c, dontDefer: true);
+                        _chunkMgr.Builder.BuildChunk(c, dontDefer: true);
                 }
             }
 
@@ -146,16 +125,16 @@ namespace VoxelGame.Engine.Voxels
             if (y >= 15) rebuild(4, x, 0, z);
             if (y <= 0) rebuild(5, x, 15, z);
         }
+
         #endregion
 
-        // Static methods for helping with world related stuff.
         #region Helpers
         /// <summary>
         /// Returns a <see cref="Vector3i"/> pointing in the direction specified.
         /// </summary>
         /// <param name="direction">Direction integer (See implementation in <see cref="Minecraft.Engine.Voxels.ChunkBuilder"/>)</param>
         /// <exception cref="Exception"/>
-        public static Vector3i GetDirAsVector(uint direction)
+        public static Vector3i DirToVector(uint direction)
         {
             return direction switch
             {
@@ -174,7 +153,7 @@ namespace VoxelGame.Engine.Voxels
         /// </summary>
         /// <param name="direction">Direction integer (See implementation in <see cref="Minecraft.Engine.Voxels.ChunkBuilder"/>)</param>
         /// <exception cref="Exception"></exception>
-        public static BlockFaces GetFace(uint direction)
+        public static BlockFaces DirToFace(uint direction)
         {
             return direction switch
             {
@@ -186,29 +165,6 @@ namespace VoxelGame.Engine.Voxels
                 5 => BlockFaces.Bottom,
                 _ => throw new Exception("Invalid direction: " + direction)
             };
-        }
-
-        /// <returns>The index of the chunk the given position is in.</returns>
-        public static Vector3i GetChunkIndex(Vector3 pos)
-        {
-            int x = (int)MathF.Floor(pos.X / 16f);
-            int y = (int)MathF.Floor(pos.Y / 16f);
-            int z = (int)MathF.Floor(pos.Z / 16f);
-            return new Vector3i(x, y, z);
-        }
-
-        /// <summary>
-        /// Converts an absolute location in the world to chunk and block indices.
-        /// </summary>
-        /// <returns>Chunk index and block index in that order.</returns>
-        public static (Vector3i, Vector3i) GetChunkBlockIndex(Vector3 pos)
-        {
-            Vector3i chunkIndex = GetChunkIndex(pos);
-            // Calculate block index in chunk.
-            int bx = (int)MathH.Mod(pos.X, 16f);
-            int by = (int)MathH.Mod(pos.Y, 16f);
-            int bz = (int)MathH.Mod(pos.Z, 16f);
-            return (chunkIndex, new Vector3i(bx, by, bz));
         }
         #endregion
     }

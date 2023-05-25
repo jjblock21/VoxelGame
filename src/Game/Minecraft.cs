@@ -60,7 +60,7 @@ namespace VoxelGame.Game
                 case MouseButton.Right:
                     if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result2))
                     {
-                        Vector3i location = result2.Location + World.GetDirAsVector(result2.FaceDirection);
+                        Vector3i location = result2.Location + World.DirToVector(result2.FaceDirection);
                         CurrentWorld?.TryPlaceBlock(location, _placeBlock);
                     }
                     break;
@@ -164,7 +164,7 @@ namespace VoxelGame.Game
             VectorUtility.Vec3For(-radius, -height, -radius, radius, height, radius, vec =>
             {
                 int ldist = vec.X * vec.X + vec.Z * vec.Z;
-                if (ldist < radiusSquared) CurrentWorld.ChunkGenerator.GenChunk(vec);
+                if (ldist < radiusSquared) CurrentWorld.GenChunk(vec);
             });
 
             ErrorHandler.Section("Game loop");
@@ -217,7 +217,7 @@ namespace VoxelGame.Game
 
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            CurrentWorld?.DrawChunks();
+            CurrentWorld?.Render();
 
             GL.Disable(EnableCap.DepthTest);
             SpriteBatch!.Begin(_hudTexture);

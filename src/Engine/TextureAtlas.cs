@@ -59,6 +59,16 @@ namespace VoxelGame.Engine
             _currentIndex++;
         }
 
+        private void NextSlot()
+        {
+            _currentSlot.X += _tileWidth;
+            if (_currentSlot.X >= Width)
+            {
+                _currentSlot.X = 0;
+                _currentSlot.Y += _tileHeight;
+            }
+        }
+
         /// <summary>
         /// Get the texture coordinates for a texture from its index.
         /// </summary>
@@ -89,16 +99,6 @@ namespace VoxelGame.Engine
             // Small number is added to avoid pulling in pixels from neighbouring textures.
             // Return coordinates for all 4 vertices in a 1D array.
             return new float[8] { left, top, left, bottom, right, bottom, right, top };
-        }
-
-        private void NextSlot()
-        {
-            _currentSlot.X += _tileWidth;
-            if (_currentSlot.X >= Width)
-            {
-                _currentSlot.X = 0;
-                _currentSlot.Y += _tileHeight;
-            }
         }
     }
 }

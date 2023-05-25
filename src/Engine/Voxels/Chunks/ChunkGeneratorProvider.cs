@@ -6,11 +6,11 @@ namespace VoxelGame.Engine.Voxels.Chunks
     public class ChunkGeneratorProvider
     {
         private ThreadLocal<ChunkGenerator> _generator;
-        private World _world;
+        private ChunkManager _chunkManager;
 
-        public ChunkGeneratorProvider(World world)
+        public ChunkGeneratorProvider(ChunkManager chunkManager)
         {
-            _world = world;
+            _chunkManager = chunkManager;
             _generator = new ThreadLocal<ChunkGenerator>(() => new ChunkGenerator());
         }
 
@@ -25,7 +25,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             // Create the empty chunk class and add it to the world...
             Chunk chunk = new Chunk(location);
             // ..if the chunk doesn't already exist
-            if (_world.Chunks.TryAdd(location, chunk))
+            if (_chunkManager.Chunks.TryAdd(location, chunk))
                 Process(chunk);
 
             // Print a debug message to the log as this should ideally be avoided.
@@ -51,8 +51,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
             for (uint dir = 0; dir < 7; dir++)
             {
                 // For every surrounding chunk, check the build stage of its neighbours.
-                Vector3i location = chunk!.Location + World.GetDirAsVector(dir);
-                Chunk? toBuild = _world.TryGetChunk(location);
+                Vector3i location = chunk!.Location + World.DirToVector(dir);
+                if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) return;
 
                 /*
                  * This piece of code requires a longer explanation:
@@ -73,7 +73,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 if (toBuild != null && toBuild.GenStage != Chunk.GenStageEnum.NoData
                     && CheckNeighboursFinal(location))
                 {
-                    _world.ChunkBuilder.BuildChunk(toBuild);
+                    _chunkManager.Builder.BuildChunk(toBuild);
                 }
             }
         }
@@ -85,9 +85,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             for (uint dir = 0; dir < 6; dir++)
             {
-                //TODO: Make sure the chunk object is not being locked for rendering.
-                Chunk? chunk = _world.TryGetChunk(location + World.GetDirAsVector(dir));
-                if (chunk != null && chunk.GenStage == Chunk.GenStageEnum.NoData)
+                Vector3i l = location + World.DirToVector(dir);
+                if (_chunkManager.Chunks.TryGetValue(l, out Chunk? chunk) && chunk.GenStage == Chunk.GenStageEnum.NoData)
                     return false;
             }
             return true;
