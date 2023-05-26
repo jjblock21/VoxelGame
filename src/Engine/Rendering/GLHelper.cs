@@ -58,5 +58,17 @@ namespace VoxelGame.Engine.Rendering
                     GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, size * sizeof(T), (IntPtr)ptr);
             }
         }
+
+        /// <summary>
+        /// Same as <see cref="GL.ClearColor(Color4)"/> but taking its aguments as bytes.
+        /// </summary>
+        /// <param name="r"></param>
+        /// <param name="g"></param>
+        /// <param name="b"></param>
+        public static void ClearColor(byte r, byte g, byte b)
+        {
+            GL.ClearColor(r / 255f, g / 255f, b / 255f, 1f);
+        }
+
     }
 }

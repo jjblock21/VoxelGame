@@ -117,7 +117,7 @@ namespace VoxelGame.Game
             GL.Enable(EnableCap.Blend);
             GL.CullFace(CullFaceMode.Front);
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-            GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            GLHelper.ClearColor(115, 138, 173);
 
             _camera = new SpectatorCamera(Window.Size, 70, new Vector3(0, 0, -3), 0, 0);
         }

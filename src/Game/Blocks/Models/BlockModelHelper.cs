@@ -34,9 +34,9 @@ namespace VoxelGame.Game.Blocks.Models
         {
             4, 1, 0, 5, // Forward
             1, 2, 3, 0, // Right
-            2, 7, 6, 3, // Back x
-            7, 4, 5, 6, // Left x
-            5, 0, 3, 6, // Up x
+            2, 7, 6, 3, // Back
+            7, 4, 5, 6, // Left
+            5, 0, 3, 6, // Up
             1, 4, 7, 2, // Down
         };
 
