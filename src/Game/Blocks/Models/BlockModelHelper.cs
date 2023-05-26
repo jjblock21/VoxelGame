@@ -7,7 +7,6 @@ namespace VoxelGame.Game.Blocks.Models
     {
         #region Face Data
         private const uint NUM_QUAD_VERTS = 4;
-        private const uint NUM_QUAD_INDICES = 6;
 
         //TODO: Faces on the debug block are still not facing the girection they should.
 
@@ -24,11 +23,10 @@ namespace VoxelGame.Game.Blocks.Models
             0, 0, 0  // 7
         };
 
-        // Clockwise and counter-clockwise face indices.
-        public static readonly uint[] quadIndices = new uint[12]
+        // Indices to form a quad (clockwise)
+        public static readonly uint[] quadIndices = new uint[6]
         {
-            0, 1, 2, 0, 2, 3, // CCW
-            0, 2, 1, 0, 3, 2  // CW
+            0, 2, 1, 0, 3, 2
         };
 
         // Mappings determining which vertices to use for a face.
@@ -36,18 +34,12 @@ namespace VoxelGame.Game.Blocks.Models
         {
             4, 1, 0, 5, // Forward
             1, 2, 3, 0, // Right
-            7, 2, 3, 6, // Back x
-            4, 7, 6, 5, // Left x
+            2, 7, 6, 3, // Back x
+            7, 4, 5, 6, // Left x
             5, 0, 3, 6, // Up x
-            4, 1, 2, 7, // Down
+            1, 4, 7, 2, // Down
         };
 
-        // Mappings determining which row of indices to use for a face.
-        public static readonly uint[] faceIndexMappings = new uint[6]
-        {
-            // In the same order as faceVertMappings:
-            1, 1, 0, 0, 1, 0
-        };
         #endregion
 
         #region Create Face
@@ -88,13 +80,9 @@ namespace VoxelGame.Game.Blocks.Models
                 vertices[vertIndex + 5] = brightness;
             }
 
-            // Add corresponding indices to form the quad.
-            uint indexRow = faceIndexMappings[direction];
-            for (uint i = 0; i < NUM_QUAD_INDICES; i++)
-            {
-                uint index = indexRow * NUM_QUAD_INDICES + i;
-                indices[i] = quadIndices[index] + totalVerts;
-            }
+            // Return indices to form a quad.
+            for (uint i = 0; i < quadIndices.Length; i++)
+                indices[i] = quadIndices[i] + totalVerts;
 
             // Increse the number of total vertices by the number of vertices per face.
             totalVerts += NUM_QUAD_VERTS;
