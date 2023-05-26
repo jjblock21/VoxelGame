@@ -8,6 +8,7 @@
         Air,
         Stone,
         Earth,
-        Wood
+        Wood,
+        Debug
     }
 }

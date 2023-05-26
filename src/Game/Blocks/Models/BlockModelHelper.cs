@@ -9,6 +9,8 @@ namespace VoxelGame.Game.Blocks.Models
         private const uint NUM_QUAD_VERTS = 4;
         private const uint NUM_QUAD_INDICES = 6;
 
+        //TODO: Faces on the debug block are still not facing the girection they should.
+
         // Vertices for every corner of a block.
         public static readonly float[] cornerVerts = new float[24]
         {

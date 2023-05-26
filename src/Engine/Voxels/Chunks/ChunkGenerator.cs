@@ -43,6 +43,9 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 if (val < 0.35) blocks[i.X, i.Y, i.Z] = BlockType.Earth;
             });
 
+            // Place debug block at the origin of the chunk.
+            blocks[0, 0, 0] = BlockType.Debug;
+
             // Not locking this, just need to make sure to not access it while the build stage is set to Pending.
             chunk.Blocks = blocks;
 

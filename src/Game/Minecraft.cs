@@ -45,7 +45,7 @@ namespace VoxelGame.Game
             Input.OnKeyReleased += Input_OnKeyReleased;
             Input.OnMouseClicked += Input_OnMouseClicked;
 
-            BlockRegistry = new BlockRegistry(3);
+            BlockRegistry = new BlockRegistry(4);
             TextureAtlas = new TextureAtlas(2, 2, 16, 16);
 
             _frameCounter = new FrameCounter(1f);
@@ -176,12 +176,10 @@ namespace VoxelGame.Game
 
         private void InitBlocks()
         {
-            Image<Rgba32> stoneTexture = Resources.ReadImage("textures/stone.png");
-            TextureAtlas.AddTexture(stoneTexture);
-            Image<Rgba32> earthTexture = Resources.ReadImage("textures/earth.png");
-            TextureAtlas.AddTexture(earthTexture);
-            Image<Rgba32> woodTexture = Resources.ReadImage("textures/wood.png");
-            TextureAtlas.AddTexture(woodTexture);
+            TextureAtlas.AddTexture(Resources.ReadImage("textures/stone.png"));
+            TextureAtlas.AddTexture(Resources.ReadImage("textures/earth.png"));
+            TextureAtlas.AddTexture(Resources.ReadImage("textures/wood.png"));
+            TextureAtlas.AddTexture(Resources.ReadImage("textures/debug.png"));
 
             ErrorHandler.Section("Init blocks");
 
@@ -195,6 +193,9 @@ namespace VoxelGame.Game
 
             SharedBlockData woodData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(2));
             BlockRegistry.Register(BlockType.Wood, woodData);
+
+            SharedBlockData debugData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(3));
+            BlockRegistry.Register(BlockType.Debug, debugData);
         }
 
         public void Unload()
