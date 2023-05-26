@@ -43,12 +43,11 @@ namespace VoxelGame.Engine.Rendering.Text
             int glyphsPerRow = texture.Width / glyphWidth;
             for (int i = 0; i < 126 - 32 + 1; i++)
             {
-                // Calculate the x and y coordinates from the index based on the numer of gylphs per row,
-                // then divide by glyphs per row to obtein the position in texture space.
+                // Calculate the x and y coordinates from the index based on the number of gylphs per row,
+                // then divide by glyphs per row to obtain the position in texture space.
                 float x = (float)(i % glyphsPerRow) / glyphsPerRow;
-                // We need to flip the Y asix since the letters go from the top left to the bottom right in the texture.
-                float flippedY = glyphsPerRow - i / glyphsPerRow - 1;
-                _glyphCoords[i] = new Vector2(x, flippedY / glyphsPerRow);
+                float y = (float)(i / glyphsPerRow) / glyphsPerRow;
+                _glyphCoords[i] = new Vector2(x, y);
             }
         }
 

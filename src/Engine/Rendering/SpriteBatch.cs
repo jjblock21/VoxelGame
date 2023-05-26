@@ -14,7 +14,7 @@ namespace VoxelGame.Engine.Rendering
     {
         private static readonly ushort[] quadIndices = new ushort[]
         {
-            2, 1, 0, 3, 2, 0
+            0, 2, 1, 0, 3, 2
         };
 
         public const int NUM_QUAD_VERTS = 4;
@@ -206,16 +206,16 @@ namespace VoxelGame.Engine.Rendering
             int j = _numQuads * NUM_QUAD_VERTS;
 
             // Vertex 1 (0, 1)
-            PutVertex(i, x, y + h, tx, ty + th);
+            PutVertex(i, x, y, tx, ty + th);
             _vertColors[j] = color.Packed;
             // Vertex 2 (0, 0)
-            PutVertex(i + 4, x, y, tx, ty);
+            PutVertex(i + 4, x + w, y, tx + tw, ty + th);
             _vertColors[j + 1] = color.Packed;
             // Vertex 3 (1, 0)
-            PutVertex(i + 8, x + w, y, tx + tw, ty);
+            PutVertex(i + 8, x + w, y + h, tx + tw, ty);
             _vertColors[j + 2] = color.Packed;
             // Vertex 4 (1, 1)
-            PutVertex(i + 12, x + w, y + h, tx + tw, ty + th);
+            PutVertex(i + 12, x, y + h, tx, ty);
             _vertColors[j + 3] = color.Packed;
         }
 
