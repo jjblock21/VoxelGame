@@ -54,7 +54,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             {
                 // For every surrounding chunk, check the build stage of its neighbours.
                 Vector3i location = chunk!.Location + World.DirToVector(dir);
-                if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) return;
+                if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) continue;
 
                 /*
                  * This piece of code requires a longer explanation:
@@ -72,11 +72,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
                  * for example, two new neighbors were generated.
                  * This is technically not necessary for dir = 7 / location = (0,0,0) but shouldn't cause problems.
                  */
-                if (toBuild != null && toBuild.GenStage != Chunk.GenStageEnum.NoData
-                    && CheckNeighboursFinal(location))
-                {
+                if (toBuild.GenStage != Chunk.GenStageEnum.NoData && CheckNeighboursFinal(location))
                     _chunkManager.Builder.BuildChunk(toBuild);
-                }
             }
         }
 

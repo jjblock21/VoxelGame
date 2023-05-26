@@ -48,9 +48,14 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 Vector3i location = target.Location + World.DirToVector(dir);
                 Chunk? chunk = Minecraft.Instance.CurrentWorld!.TryGetChunk(location);
-                // If a chunk doesn't exist or doesn't have data yet dont add it to the neighbours array.
-                if (chunk == null || chunk.GenStage == Chunk.GenStageEnum.NoData) continue;
-                _neighbours[dir] = chunk;
+
+                // If a chunk exists but doesn't have data yet dont add it to the array.
+                if (chunk != null && chunk.GenStage == Chunk.GenStageEnum.NoData)
+                {
+                    // Always make sure to set this to null if the neighbour is invalid, otherwise it will create weird results.
+                    _neighbours[dir] = null;
+                }
+                else _neighbours[dir] = chunk;
             }
 
             var result = new ChunkBuildResult();

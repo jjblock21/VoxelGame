@@ -195,10 +195,8 @@ namespace VoxelGame.Engine.Rendering
             int coordBufferSize = _numQuads * 4 * NUM_QUAD_VERTS;
             GLHelper.VertexBufferSubData(_vbo, _verts, coordBufferSize);
 
-            ErrorHandler.Section("dhsakdjhkas");
             int colorBufferSize = _numQuads * NUM_QUAD_VERTS;
             GLHelper.VertexBufferSubData(_colorVbo, _vertColors, colorBufferSize);
-            ErrorHandler.Section("Other");
         }
 
         [MethodImpl(OPTIMIZE)]
