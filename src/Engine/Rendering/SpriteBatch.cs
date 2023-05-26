@@ -191,25 +191,14 @@ namespace VoxelGame.Engine.Rendering
 
         private void UploadBatch()
         {
-            // Move vertex data into the vertex buffer.
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo.Handle);
-            int coordBufferSize = _numQuads * 4 * NUM_QUAD_VERTS * sizeof(float);
-            unsafe
-            {
-                // Obtain a pointer to the start of the array.
-                fixed (float* ptr = _verts)
-                    // Upload only the used region of the buffer to the gpu.
-                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, coordBufferSize, (IntPtr)ptr);
-            }
+            // Using sub data here to not to avoid uploading the empty space in the array aswell.
+            int coordBufferSize = _numQuads * 4 * NUM_QUAD_VERTS;
+            GLHelper.VertexBufferSubData(_vbo, _verts, coordBufferSize);
 
-            // Move color vertex data into the vertex buffer.
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _colorVbo.Handle);
-            int colorBufferSize = _numQuads * NUM_QUAD_VERTS * sizeof(uint);
-            unsafe
-            {
-                fixed (uint* ptr = _vertColors)
-                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, colorBufferSize, (IntPtr)ptr);
-            }
+            ErrorHandler.Section("dhsakdjhkas");
+            int colorBufferSize = _numQuads * NUM_QUAD_VERTS;
+            GLHelper.VertexBufferSubData(_colorVbo, _vertColors, colorBufferSize);
+            ErrorHandler.Section("Other");
         }
 
         [MethodImpl(OPTIMIZE)]

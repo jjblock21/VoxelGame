@@ -1,5 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
+using System;
+using VoxelGame.Engine.Rendering.Buffers;
 
 namespace VoxelGame.Engine.Rendering
 {
@@ -38,6 +40,23 @@ namespace VoxelGame.Engine.Rendering
         {
             Matrix4 mat = matrix;
             GL.UniformMatrix4(fieldHandle, false, ref mat);
+        }
+
+        /// <summary>
+        /// Uploads a data from an array into a vertex buffer without reallocating it.
+        /// </summary>
+        /// <typeparam name="T">Unamnaged type of the data.</typeparam>
+        /// <param name="buffer">Target vertex buffer.</param>
+        /// <param name="data">Array containing the data.</param>
+        /// <param name="size">Number of elements from the data array to move into the buffers data store.</param>
+        public static void VertexBufferSubData<T>(VertexBuffer<T> buffer, T[] data, int size) where T : unmanaged
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, buffer.Handle);
+            unsafe
+            {
+                fixed (T* ptr = data)
+                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, size * sizeof(T), (IntPtr)ptr);
+            }
         }
     }
 }
