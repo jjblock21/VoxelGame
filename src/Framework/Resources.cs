@@ -51,9 +51,7 @@ namespace VoxelGame.Framework
         #endregion
         public static Image<Rgba32> ReadImage(string path)
         {
-            Image<Rgba32> image = Image.Load<Rgba32>(ToFullyQualifiedPath(path));
-            image.Mutate(c => c.Flip(FlipMode.Vertical));
-            return image;
+            return Image.Load<Rgba32>(ToFullyQualifiedPath(path));
         }
     }
 }

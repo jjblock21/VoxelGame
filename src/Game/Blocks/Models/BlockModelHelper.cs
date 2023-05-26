@@ -7,37 +7,44 @@ namespace VoxelGame.Game.Blocks.Models
     {
         #region Face Data
         private const uint NUM_QUAD_VERTS = 4;
+        private const uint NUM_QUAD_INDICES = 6;
 
-        //TODO: Overhaul this to make textures not be rotated weird on the sides of a block.
         // Vertices for every corner of a block.
         public static readonly float[] cornerVerts = new float[24]
         {
-            1, 1, 1,
-            1, 0, 1,
-            1, 0, 0,
-            1, 1, 0,
-            0, 0, 1,
-            0, 1, 1,
-            0, 1, 0,
-            0, 0, 0
+            1, 1, 1, // 0
+            1, 0, 1, // 1
+            1, 0, 0, // 2
+            1, 1, 0, // 3
+            0, 0, 1, // 4
+            0, 1, 1, // 5
+            0, 1, 0, // 6
+            0, 0, 0  // 7
+        };
+
+        // Clockwise and counter-clockwise face indices.
+        public static readonly uint[] quadIndices = new uint[12]
+        {
+            0, 1, 2, 0, 2, 3, // CCW
+            0, 2, 1, 0, 3, 2  // CW
         };
 
         // Mappings determining which vertices to use for a face.
         public static readonly uint[] faceVertMappings = new uint[24]
         {
-            5, 4, 1, 0, // (Up)      - Forward
-            0, 1, 2, 3, // (Forward) - Right
-            3, 2, 7, 6, // (Down)    - Back
-            4, 5, 6, 7, // (Back)    - Left
-            5, 0, 3, 6, // (Right)   - Up
-            1, 4, 7, 2, // (Left)    - Down
+            4, 1, 0, 5, // Forward
+            1, 2, 3, 0, // Right
+            7, 2, 3, 6, // Back x
+            4, 7, 6, 5, // Left x
+            5, 0, 3, 6, // Up x
+            4, 1, 2, 7, // Down
         };
 
-        // Indices to form a quad.
-        public static readonly uint[] quadIndices = new uint[6]
+        // Mappings determining which row of indices to use for a face.
+        public static readonly uint[] faceIndexMappings = new uint[6]
         {
-            3, 2, 0,
-            2, 1, 0
+            // In the same order as faceVertMappings:
+            1, 1, 0, 0, 1, 0
         };
         #endregion
 
@@ -50,13 +57,13 @@ namespace VoxelGame.Game.Blocks.Models
             float[] texCoords = Minecraft.Instance.TextureAtlas[textureIndex];
 
             // Retrive row containing vertex mappings for face from direction.
-            uint mappingRow = direction * NUM_QUAD_VERTS;
+            uint vertMappingRow = direction * NUM_QUAD_VERTS;
             for (int i = 0; i < NUM_QUAD_VERTS; i++)
             {
                 int vertIndex = i * ChunkBuilder.BUFFER_STRIDE;
 
                 // For every vertex mapping, retrive the vertexes row in the vertex array...
-                uint vertRow = faceVertMappings[mappingRow + i] * 3;
+                uint vertRow = faceVertMappings[vertMappingRow + i] * 3;
 
                 // ...and add the coordinates of the vertex in that row to the list.
                 vertices[vertIndex] = cornerVerts[vertRow] + pos.X;
@@ -79,9 +86,13 @@ namespace VoxelGame.Game.Blocks.Models
                 vertices[vertIndex + 5] = brightness;
             }
 
-            // Add indices to form 2 trangles for each face.
-            for (int i = 0; i < quadIndices.Length; i++)
-                indices[i] = quadIndices[i] + totalVerts;
+            // Add corresponding indices to form the quad.
+            uint indexRow = faceIndexMappings[direction];
+            for (uint i = 0; i < NUM_QUAD_INDICES; i++)
+            {
+                uint index = indexRow * NUM_QUAD_INDICES + i;
+                indices[i] = quadIndices[index] + totalVerts;
+            }
 
             // Increse the number of total vertices by the number of vertices per face.
             totalVerts += NUM_QUAD_VERTS;

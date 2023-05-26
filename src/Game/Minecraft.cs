@@ -138,7 +138,7 @@ namespace VoxelGame.Game
             int worldShader = ShaderCompiler.Compile(Resources.ReadText("shaders/world.glsl"), "world.glsl");
 
             ErrorHandler.Section("Create SpriteBatch");
-            SpriteBatch = new SpriteBatch(spriteShader, 16, Window.Size);
+            SpriteBatch = new SpriteBatch(spriteShader, 64, Window.Size);
 
             ErrorHandler.Section("Intialize fonts");
 
@@ -230,12 +230,13 @@ namespace VoxelGame.Game
             SpriteBatch.Quad((int)(Window.ClientSize.X * 0.5f - 3.5f), (int)(Window.ClientSize.Y * 0.5f - 3.5f), 14, 14, new Vector4i(0, 0, 7, 7));
 
             // Render fps text background.
-            SpriteBatch.Quad(0, Window.Size.Y - 22, 100, 22, color: new Argb(0f, 0f, 0f, 0.6f));
+            SpriteBatch.Quad(0, Window.Size.Y - 38, Window.Size.X / 2, 38, color: new Argb(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
             TextRenderer!.Begin();
 
             TextRenderer.DrawText(6, Window.Size.Y - 16, $"Fps:{_frameCounter.FrameRate}", 10);
+            TextRenderer.DrawText(6, Window.Size.Y - 32, $"Facing:{_camera!.Forward}", 10);
 
             TextRenderer.Flush();
             GL.Enable(EnableCap.DepthTest);

@@ -101,7 +101,7 @@ namespace VoxelGame.Engine
 
             // Small number is added to avoid pulling in pixels from neighbouring textures.
             // Return coordinates for all 4 vertices in a 1D array.
-            return new float[8] { left, top, left, bottom, right, bottom, right, top };
+            return new float[8] { left, bottom, right, bottom, right, top, left, top };
         }
     }
 }
