@@ -1,13 +1,12 @@
 ﻿using OpenTK.Mathematics;
-using VoxelGame.Engine.Voxels;
 using VoxelGame.Engine.Voxels.Chunks.MeshGen;
 
 namespace VoxelGame.Game.Blocks.Models
 {
-    public abstract class CulledBlockModelBase : IBlockModel
+    public static class BlockModelHelper
     {
         #region Face Data
-        private const uint NUM_VERTS = 4;
+        private const uint NUM_QUAD_VERTS = 4;
 
         //TODO: Overhaul this to make textures not be rotated weird on the sides of a block.
         // Vertices for every corner of a block.
@@ -42,16 +41,17 @@ namespace VoxelGame.Game.Blocks.Models
         };
         #endregion
 
-        protected void MakeSingleFace(uint direction, Vector3i pos, int textureIndex, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
+        #region Create Face
+        public static void CreateFace(uint direction, Vector3i pos, int textureIndex, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
         {
-            vertices = new float[NUM_VERTS * ChunkBuilder.BUFFER_STRIDE];
+            vertices = new float[NUM_QUAD_VERTS * ChunkBuilder.BUFFER_STRIDE];
             indices = new uint[quadIndices.Length];
 
             float[] texCoords = Minecraft.Instance.TextureAtlas[textureIndex];
 
             // Retrive row containing vertex mappings for face from direction.
-            uint mappingRow = direction * NUM_VERTS;
-            for (int i = 0; i < NUM_VERTS; i++)
+            uint mappingRow = direction * NUM_QUAD_VERTS;
+            for (int i = 0; i < NUM_QUAD_VERTS; i++)
             {
                 int vertIndex = i * ChunkBuilder.BUFFER_STRIDE;
 
@@ -84,10 +84,8 @@ namespace VoxelGame.Game.Blocks.Models
                 indices[i] = quadIndices[i] + totalVerts;
 
             // Increse the number of total vertices by the number of vertices per face.
-            totalVerts += NUM_VERTS;
+            totalVerts += NUM_QUAD_VERTS;
         }
-
-        public abstract bool BuildFace(uint direction, Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices);
-        public abstract bool BuildMesh(Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices);
+        #endregion
     }
 }
