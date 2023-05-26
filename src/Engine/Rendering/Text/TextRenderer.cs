@@ -17,7 +17,7 @@ namespace VoxelGame.Engine.Rendering.Text
         }
 
         // Temporary simple text rendering solution.
-        public void DrawText(int x, int y, string text, int size, PackedColor color = default)
+        public void DrawText(int x, int y, string text, int size, Argb color = default)
         {
             int offset = 0;
             int height = (int)(_glyphAtlas.GlyphAspect * size);
