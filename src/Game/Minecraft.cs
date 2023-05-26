@@ -13,6 +13,8 @@ using VoxelGame.Game.Blocks.Models;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp;
 
+//TODO: Rewrite the chunk stuff soon since the code is very bad.
+
 namespace VoxelGame.Game
 {
     public class Minecraft
