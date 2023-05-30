@@ -27,6 +27,7 @@ namespace VoxelGame.Game
         public static Minecraft Instance => _instance!; // Instance should not be null here.
 
         public World? CurrentWorld { get; private set; }
+        public ChunkManager? ChunkManager { get; private set; }
 
         public SpriteBatch? SpriteBatch { get; private set; }
         public WorldRenderer? WorldRenderer { get; private set; }
@@ -183,19 +184,10 @@ namespace VoxelGame.Game
 
             ErrorHandler.Section("Init blocks");
 
-            // Air block doesn't need data.
-
-            SharedBlockData stoneData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(0));
-            BlockRegistry.Register(BlockType.Stone, stoneData);
-
-            SharedBlockData earthData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(1));
-            BlockRegistry.Register(BlockType.Earth, earthData);
-
-            SharedBlockData woodData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(2));
-            BlockRegistry.Register(BlockType.Wood, woodData);
-
-            SharedBlockData debugData = new SharedBlockData(BlockParams.Default, new DefaultBlockModel(3));
-            BlockRegistry.Register(BlockType.Debug, debugData);
+            BlockRegistry[BlockType.Stone] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(0));
+            BlockRegistry[BlockType.Earth] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(1));
+            BlockRegistry[BlockType.Wood] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(2));
+            BlockRegistry[BlockType.Debug] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(3));
         }
 
         public void Unload()

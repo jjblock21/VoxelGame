@@ -5,25 +5,39 @@ namespace VoxelGame.Engine.Voxels
 {
     public class BlockRegistry
     {
-        private SharedBlockData[] Behaviours;
+        private BlockEntry[] Behaviours;
 
         public BlockRegistry(int capacity)
         {
-            Behaviours = new SharedBlockData[capacity];
+            Behaviours = new BlockEntry[capacity];
         }
 
-        public void Register(BlockType block, SharedBlockData behaviour)
+        public BlockEntry this[BlockType block]
         {
-            int index = (int)block - 1;
-            if (index >= Behaviours.Length || block <= 0) throw new IndexOutOfRangeException();
-            Behaviours[index] = behaviour;
+            get => Behaviours[GetIndex(block)];
+            set => Behaviours[GetIndex(block)] = value;
         }
 
-        public SharedBlockData GetData(BlockType block)
+        private int GetIndex(BlockType block)
         {
+            // Air block is excluded since its ignored everywhere anyways.
             int index = (int)block - 1;
-            if (index >= Behaviours.Length || block < 0) throw new IndexOutOfRangeException();
-            return Behaviours[index];
+            // Validate index.
+            if (index >= Behaviours.Length || block < 0)
+                throw new IndexOutOfRangeException("Block registry too small.");
+            return index;
+        }
+    }
+
+    public class BlockEntry
+    {
+        public readonly BlockParams Params;
+        public readonly IBlockModel Model;
+
+        public BlockEntry(BlockParams blockParams, IBlockModel model)
+        {
+            Params = blockParams;
+            Model = model;
         }
     }
 }

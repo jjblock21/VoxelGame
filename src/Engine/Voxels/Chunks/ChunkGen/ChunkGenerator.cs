@@ -1,9 +1,8 @@
 ﻿using OpenTK.Mathematics;
-using VoxelGame.Engine;
 using VoxelGame.Framework.Helpers;
 using VoxelGame.Game.Blocks;
 
-namespace VoxelGame.Engine.Voxels.Chunks
+namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 {
     public class ChunkGenerator
     {

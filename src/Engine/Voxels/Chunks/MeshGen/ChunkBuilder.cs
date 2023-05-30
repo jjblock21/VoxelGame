@@ -97,7 +97,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                         // If this happends I fucked up big somewhere.
                         if (_target!.Blocks![x, y, z] == BlockType.Air) continue;
 
-                        SharedBlockData data = Minecraft.Instance.BlockRegistry.GetData(_target.Blocks[x, y, z]);
+                        BlockEntry data = Minecraft.Instance.BlockRegistry[_target.Blocks[x, y, z]];
                         Vector3i index = new Vector3i(x, y, z);
 
                         // If the block should not be culled agains other blocks, generate all faces and exit.
@@ -132,7 +132,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
         }
 
         [MethodImpl(INLINE)]
-        private bool ShouldRenderFace(int x, int y, int z, SharedBlockData data)
+        private bool ShouldRenderFace(int x, int y, int z, BlockEntry data)
         {
             [MethodImpl(INLINE)]
             bool isTransparent(int i, int bx, int by, int bz)

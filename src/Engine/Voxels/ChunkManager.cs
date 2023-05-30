@@ -5,6 +5,7 @@ using VoxelGame.Engine.Voxels.Chunks;
 using VoxelGame.Framework;
 using VoxelGame.Framework.Helpers;
 using System;
+using VoxelGame.Engine.Voxels.Chunks.ChunkGen;
 
 namespace VoxelGame.Engine.Voxels
 {

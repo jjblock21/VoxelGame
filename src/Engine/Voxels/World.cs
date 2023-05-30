@@ -112,7 +112,7 @@ namespace VoxelGame.Engine.Voxels
                     if (c.Blocks![x, y, z] == BlockType.Air) return;
 
                     // Rebuild the chunk if the block next to the affected block culls against it.
-                    SharedBlockData data = Minecraft.Instance.BlockRegistry.GetData(c.Blocks[x, y, z]);
+                    BlockEntry data = Minecraft.Instance.BlockRegistry[c.Blocks[x, y, z]];
                     if ((data.Params & BlockParams.DontCull) == 0)
                         _chunkMgr.Builder.BuildChunk(c, dontDefer: true);
                 }

@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Game;
 
-namespace VoxelGame.Engine.Voxels.Chunks
+namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 {
     public class ChunkGeneratorProvider
     {
