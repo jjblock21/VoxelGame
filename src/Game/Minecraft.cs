@@ -10,17 +10,12 @@ using VoxelGame.Engine.Rendering.Text;
 using VoxelGame.Framework;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game.Blocks.Models;
-using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp;
-
-//TODO: Rewrite the chunk stuff soon since the code is very bad.
 
 namespace VoxelGame.Game
 {
     public class Minecraft
     {
         private SpectatorCamera? _camera;
-        private FrameCounter _frameCounter;
         private Texture2D _hudTexture;
 
         private static Minecraft? _instance;
@@ -47,8 +42,6 @@ namespace VoxelGame.Game
 
             BlockRegistry = new BlockRegistry(4);
             TextureAtlas = new TextureAtlas(2, 2, 16, 16);
-
-            _frameCounter = new FrameCounter(1f);
         }
 
         private void Input_OnMouseClicked(MouseButton button, KeyModifiers modifiers)
@@ -56,53 +49,56 @@ namespace VoxelGame.Game
             switch (button)
             {
                 case MouseButton.Left:
-                    if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
-                    {
-                        CurrentWorld?.TryPlaceBlock(result.Location, BlockType.Air);
-                    }
+                    BreakBlock();
                     break;
                 case MouseButton.Right:
-                    if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result2))
-                    {
-                        Vector3i location = result2.Location + World.DirToVector(result2.FaceDirection);
-                        CurrentWorld?.TryPlaceBlock(location, _placeBlock);
-                    }
+                    PlaceBlock();
                     break;
             }
         }
-
-        private bool wireframe = false;
-        private bool updateWireframe = false;
 
         private void Input_OnKeyReleased(Keys key, int code, KeyModifiers modifiers)
         {
             if (key == Keys.F4)
-            {
-                wireframe = false;
-                updateWireframe = true;
-            }
+                Window.SetWireframe(false);
         }
 
         private bool mouseLocked = true;
-        private BlockType _placeBlock = BlockType.Earth;
+        private BlockType _blockInHand = BlockType.Earth;
 
         private void Input_OnKeyPressed(Keys key, int code, KeyModifiers modifiers)
         {
-            if (key == Keys.Escape)
+            switch (key)
             {
-                mouseLocked = !mouseLocked;
-                Input.SetCursorLocked(mouseLocked);
+                case Keys.Escape:
+                    mouseLocked = !mouseLocked;
+                    Input.SetCursorLocked(mouseLocked);
+                    break;
+
+                case Keys.F3:
+                    Window.SetWireframe(true);
+                    break;
+
+                case Keys.F:
+                    _blockInHand++;
+                    if (_blockInHand > BlockType.Wood)
+                        _blockInHand = BlockType.Stone;
+                    break;
             }
-            if (key == Keys.F4)
+        }
+
+        private void BreakBlock()
+        {
+            if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
+                CurrentWorld?.TryPlaceBlock(result.Location, BlockType.Air);
+        }
+
+        private void PlaceBlock()
+        {
+            if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
             {
-                wireframe = true;
-                updateWireframe = true;
-            }
-            if (key == Keys.F)
-            {
-                _placeBlock++;
-                if (_placeBlock > BlockType.Wood)
-                    _placeBlock = BlockType.Stone;
+                Vector3i location = result.Location + World.DirToVector(result.FaceDirection);
+                CurrentWorld?.TryPlaceBlock(location, _blockInHand);
             }
         }
 
@@ -125,14 +121,6 @@ namespace VoxelGame.Game
         // Loading assets and expensive calculations.
         public void Load()
         {
-            ErrorHandler.Section("Set up Vertex Arrays");
-
-            // Create vertex attrib array.
-            VertexArrayObject chunkMeshVao = new VertexArrayObject();
-            chunkMeshVao.AddVertexAttrib(0, 3, 0); // Vertex position
-            chunkMeshVao.AddVertexAttrib(0, 2, 3 * sizeof(float)); // Texture index
-            chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness
-
             ErrorHandler.Section("Load and compile shaders");
             int spriteShader = ShaderCompiler.Compile(Resources.ReadText("shaders/sprite.glsl"), "sprite.glsl");
             int worldShader = ShaderCompiler.Compile(Resources.ReadText("shaders/world.glsl"), "world.glsl");
@@ -156,6 +144,12 @@ namespace VoxelGame.Game
 
             ErrorHandler.Section("Init world");
 
+            // Create vertex attrib array.
+            VertexArrayObject chunkMeshVao = new VertexArrayObject();
+            chunkMeshVao.AddVertexAttrib(0, 3, 0); // Vertex position
+            chunkMeshVao.AddVertexAttrib(0, 2, 3 * sizeof(float)); // Texture index
+            chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness
+
             WorldRenderer = new WorldRenderer(chunkMeshVao, worldShader, worldTexture, _camera!);
             CurrentWorld = new World(WorldRenderer);
 
@@ -176,6 +170,7 @@ namespace VoxelGame.Game
 
         private void InitBlocks()
         {
+            // Add textures to the texture atlas.
             TextureAtlas.AddTexture(Resources.ReadImage("textures/stone.png"));
             TextureAtlas.AddTexture(Resources.ReadImage("textures/earth.png"));
             TextureAtlas.AddTexture(Resources.ReadImage("textures/wood.png"));
@@ -183,6 +178,7 @@ namespace VoxelGame.Game
 
             ErrorHandler.Section("Init blocks");
 
+            // Initialize properties for the different types of blocks.
             BlockRegistry[BlockType.Stone] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(0));
             BlockRegistry[BlockType.Earth] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(1));
             BlockRegistry[BlockType.Wood] = new BlockEntry(BlockParams.Default, new DefaultBlockModel(2));
@@ -191,12 +187,14 @@ namespace VoxelGame.Game
 
         public void Unload()
         {
-            GL.UseProgram(0);
-
             ErrorHandler.Section("Unload resources");
+
+            GL.UseProgram(0);
             GLHelper.UnbindMeshBuffers();
             GL.BindTexture(TextureTarget.Texture2D, 0);
+
             WorldRenderer!.Free();
+            CurrentWorld!.Free();
 
             ErrorHandler.CheckGLErrors();
         }
@@ -207,43 +205,34 @@ namespace VoxelGame.Game
             SpriteBatch!.ChangeViewport(e.Size);
         }
 
-        public void RenderFrame(double frameTime)
+        public void RenderScene(double frameTime)
         {
-            _frameCounter.Sample(frameTime);
-
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             CurrentWorld?.Render();
+        }
 
-            GL.Disable(EnableCap.DepthTest);
+        public void RenderOverlay(double frameTime)
+        {
             SpriteBatch!.Begin(_hudTexture);
 
             // Render crosshair.
             SpriteBatch.Quad((int)(Window.ClientSize.X * 0.5f - 3.5f), (int)(Window.ClientSize.Y * 0.5f - 3.5f), 14, 14, new Vector4i(0, 0, 7, 7));
-
             // Render fps text background.
             SpriteBatch.Quad(0, Window.Size.Y - 38, Window.Size.X / 2, 38, color: new Argb(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
+
             TextRenderer!.Begin();
 
-            TextRenderer.DrawText(6, Window.Size.Y - 16, $"Fps:{_frameCounter.FrameRate}", 10);
+            TextRenderer.DrawText(6, Window.Size.Y - 16, $"Fps:{Window.FrameRate}", 10);
             TextRenderer.DrawText(6, Window.Size.Y - 32, $"Facing:{_camera!.Forward}", 10);
 
             TextRenderer.Flush();
-            GL.Enable(EnableCap.DepthTest);
-
-            ErrorHandler.CheckGLErrors();
         }
 
         public void UpdateFrame(double frameTime)
         {
-            if (updateWireframe)
-            {
-                GL.PolygonMode(MaterialFace.FrontAndBack, wireframe ? PolygonMode.Line : PolygonMode.Fill);
-                if (wireframe) GL.Disable(EnableCap.Blend); else GL.Enable(EnableCap.Blend);
-                updateWireframe = false;
-            }
             CurrentWorld?.Update();
             _camera!.Update(frameTime);
         }

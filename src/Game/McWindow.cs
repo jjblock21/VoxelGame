@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -16,9 +17,10 @@ namespace VoxelGame.Game
         private const int VERSION_MINOR = 5;
 
         private Minecraft? _minecraft;
+        private FrameCounter _frameCounter;
 
-        #region Static Logger
         public static readonly DefaultLogger Logger;
+
         static McWindow()
         {
 #if DEBUG
@@ -28,7 +30,6 @@ namespace VoxelGame.Game
             Logger = new DefaultLogger(1);
 #endif
         }
-        #endregion
 
         // Dont run code in here as exceptions will not be handled correctly.
         public McWindow() : base(
@@ -40,19 +41,15 @@ namespace VoxelGame.Game
                 StartVisible = false,
                 Vsync = VSyncMode.On
             })
-        { }
-
-        private void Init()
         {
-            unsafe { Input.Init(WindowPtr, MouseState, KeyboardState); }
-            Input.SetCursorLocked(true);
-
-            CenterWindow();
-
-            Logger.Info($"Version: {API} {APIVersion}");
-            _minecraft = new Minecraft(this);
+            _frameCounter = new FrameCounter(1f);
         }
 
+        #region Public Methods
+
+        /// <summary>
+        /// Turns Fullscreen mode on/off.
+        /// </summary>
         public void SetFullscreen(bool fullscreen)
         {
             if (fullscreen)
@@ -63,12 +60,37 @@ namespace VoxelGame.Game
             else WindowState = _prevWindowState;
         }
 
+        /// <summary>
+        /// Turns wireframe mode on/off.
+        /// </summary>
+        public void SetWireframe(bool wireframe)
+        {
+            GL.PolygonMode(MaterialFace.FrontAndBack, wireframe ? PolygonMode.Line : PolygonMode.Fill);
+            if (wireframe) GL.Disable(EnableCap.Blend);
+            else GL.Enable(EnableCap.Blend);
+        }
+
+        /// <summary>
+        /// Framerate the game is currently running at.
+        /// </summary>
+        public int FrameRate => _frameCounter.FrameRate;
+
+        #endregion
+
         protected override void OnLoad()
         {
-            Init();
+            unsafe { Input.Init(WindowPtr, MouseState, KeyboardState); }
+            Input.SetCursorLocked(true);
+
+            CenterWindow();
+
+            Logger.Info($"Version: {API} {APIVersion}");
+
+            _minecraft = new Minecraft(this);
             _minecraft!.Init();
             IsVisible = true;
             _minecraft.Load();
+
             base.OnLoad();
         }
 
@@ -80,8 +102,16 @@ namespace VoxelGame.Game
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
-            _minecraft!.RenderFrame(args.Time);
+            _frameCounter.Sample(args.Time);
+
+            _minecraft!.RenderScene(args.Time);
+            GL.Disable(EnableCap.DepthTest);
+            _minecraft!.RenderOverlay(args.Time);
+            GL.Enable(EnableCap.DepthTest);
+
             Context.SwapBuffers();
+            ErrorHandler.CheckGLErrors();
+
             base.OnRenderFrame(args);
         }
 
@@ -101,15 +131,13 @@ namespace VoxelGame.Game
 
         protected override void OnKeyDown(KeyboardKeyEventArgs e)
         {
-            switch (e.Key)
+            if (e.Key == Keys.F11)
             {
-                case Keys.F11:
-                    SetFullscreen(!IsFullscreen);
-                    break;
-                default:
-                    Input.CallKeyDown(e);
-                    break;
+                SetFullscreen(!IsFullscreen);
+                return;
             }
+            Input.CallKeyDown(e);
+
             base.OnKeyDown(e);
         }
 
