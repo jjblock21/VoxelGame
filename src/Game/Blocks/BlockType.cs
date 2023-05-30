@@ -1,7 +1,7 @@
 ﻿namespace VoxelGame.Game.Blocks
 {
     /// <summary>
-    /// Type: Index enum (Used as a replacement for indices to tell the developer what certain numbers do)
+    /// Type: Index enum (Just so you can tell what block certain numbers are)
     /// </summary>
     public enum BlockType : byte
     {
