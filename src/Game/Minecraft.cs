@@ -27,7 +27,6 @@ namespace VoxelGame.Game
         public static Minecraft Instance => _instance!; // Instance should not be null here.
 
         public World? CurrentWorld { get; private set; }
-        public ChunkManager? ChunkManager { get; private set; }
 
         public SpriteBatch? SpriteBatch { get; private set; }
         public WorldRenderer? WorldRenderer { get; private set; }
