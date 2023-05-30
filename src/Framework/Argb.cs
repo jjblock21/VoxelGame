@@ -39,21 +39,7 @@ namespace VoxelGame.Framework
             return new Vector4i(r, g, b, a);
         }
 
-        /// <summary>
-        /// Unpacks the packed argb integer into floats with values between 0 and 1.
-        /// </summary>
-        public Vector4 UnpackFloat()
-        {
-            const int toFloat = 1 / 255;
-
-            float a = ((Packed >> 24) & 255) * toFloat;
-            float r = ((Packed >> 16) & 255) * toFloat;
-            float g = ((Packed >> 8) & 255) * toFloat;
-            float b = (Packed & 255) * toFloat;
-            return new Vector4(r, g, b, a);
-        }
-
-        #region Predefined
+        #region Predefined Colors
 
         static Argb()
         {

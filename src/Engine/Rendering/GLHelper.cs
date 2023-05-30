@@ -49,14 +49,11 @@ namespace VoxelGame.Engine.Rendering
         /// <param name="buffer">Target vertex buffer.</param>
         /// <param name="data">Array containing the data.</param>
         /// <param name="size">Number of elements from the data array to move into the buffers data store.</param>
-        public static void VertexBufferSubData<T>(VertexBuffer<T> buffer, T[] data, int size) where T : unmanaged
+        public static unsafe void VertexBufferSubData<T>(VertexBuffer<T> buffer, T[] data, int size) where T : unmanaged
         {
             GL.BindBuffer(BufferTarget.ArrayBuffer, buffer.Handle);
-            unsafe
-            {
-                fixed (T* ptr = data)
-                    GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, size * sizeof(T), (IntPtr)ptr);
-            }
+            fixed (T* ptr = data)
+                GL.BufferSubData(BufferTarget.ArrayBuffer, IntPtr.Zero, size * sizeof(T), (IntPtr)ptr);
         }
 
         /// <summary>
