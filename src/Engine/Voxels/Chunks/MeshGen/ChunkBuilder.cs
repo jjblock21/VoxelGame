@@ -47,7 +47,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                 token.ThrowIfCancellationRequested();
 
                 Vector3i location = target.Location + World.DirToVector(dir);
-                Chunk? chunk = Minecraft.Instance.CurrentWorld!.TryGetChunk(location);
+                Chunk? chunk = Minecraft.Instance.Session.ChunkManager.GetChunk(location);
 
                 // If a chunk exists but doesn't have data yet dont add it to the array.
                 if (chunk != null && chunk.GenStage == Chunk.GenStageEnum.NoData)

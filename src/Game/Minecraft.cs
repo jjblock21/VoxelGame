@@ -21,10 +21,10 @@ namespace VoxelGame.Game
         private static Minecraft? _instance;
         public static Minecraft Instance => _instance!; // Instance should not be null here.
 
-        public World? CurrentWorld { get; private set; }
+        private Session? _session;
+        public Session Session => _session!; // This is done to have the property not be nullable
 
         public SpriteBatch? SpriteBatch { get; private set; }
-        public WorldRenderer? WorldRenderer { get; private set; }
 
         public McWindow Window { get; }
         public BlockRegistry BlockRegistry { get; }
@@ -90,7 +90,7 @@ namespace VoxelGame.Game
         private void BreakBlock()
         {
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
-                CurrentWorld?.TryPlaceBlock(result.Location, BlockType.Air);
+                Session.CurrentWorld?.TryPlaceBlock(result.Location, BlockType.Air);
         }
 
         private void PlaceBlock()
@@ -98,7 +98,7 @@ namespace VoxelGame.Game
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
             {
                 Vector3i location = result.Location + World.DirToVector(result.FaceDirection);
-                CurrentWorld?.TryPlaceBlock(location, _blockInHand);
+                Session.CurrentWorld?.TryPlaceBlock(location, _blockInHand);
             }
         }
 
@@ -150,19 +150,21 @@ namespace VoxelGame.Game
             chunkMeshVao.AddVertexAttrib(0, 2, 3 * sizeof(float)); // Texture index
             chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness
 
-            WorldRenderer = new WorldRenderer(chunkMeshVao, worldShader, worldTexture, _camera!);
-            CurrentWorld = new World(WorldRenderer);
+            _session = new Session(new WorldRenderer(chunkMeshVao, worldShader, worldTexture, _camera!));
 
             ErrorHandler.Section("World gen");
 
-            // Generate cylinder of chunks.
-            const int radius = 8;
-            const int height = 4;
-            const int radiusSquared = radius * radius;
-            VectorUtility.Vec3For(-radius, -height, -radius, radius, height, radius, vec =>
+            _session.LoadWorld(chunkManager =>
             {
-                int ldist = vec.X * vec.X + vec.Z * vec.Z;
-                if (ldist < radiusSquared) CurrentWorld.GenChunk(vec);
+                // Generate cylinder of chunks.
+                const int radius = 8;
+                const int height = 4;
+                const int radiusSquared = radius * radius;
+                VectorUtility.Vec3For(-radius, -height, -radius, radius, height, radius, vec =>
+                {
+                    int ldist = vec.X * vec.X + vec.Z * vec.Z;
+                    if (ldist < radiusSquared) chunkManager.Generator.GenChunk(vec);
+                });
             });
 
             ErrorHandler.Section("Game loop");
@@ -193,8 +195,7 @@ namespace VoxelGame.Game
             GLHelper.UnbindMeshBuffers();
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
-            WorldRenderer!.Free();
-            CurrentWorld!.Free();
+            Session.Free();
 
             ErrorHandler.CheckGLErrors();
         }
@@ -208,8 +209,7 @@ namespace VoxelGame.Game
         public void RenderScene(double frameTime)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            CurrentWorld?.Render();
+            Session.Render();
         }
 
         public void RenderOverlay(double frameTime)
@@ -233,8 +233,8 @@ namespace VoxelGame.Game
 
         public void UpdateFrame(double frameTime)
         {
-            CurrentWorld?.Update();
             _camera!.Update(frameTime);
+            Session.Update();
         }
     }
 }

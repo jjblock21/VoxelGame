@@ -25,13 +25,15 @@ namespace VoxelGame.Engine
         {
             if (direction == Vector3.Zero)
                 throw new ArgumentException("Direction can't be zero!");
+            if (Minecraft.Instance.Session.CurrentWorld == null)
+                throw new InvalidOperationException("No world currently loaded!");
 
             Result res = default;
             sbyte state = 0;
 
             // The cell the ray is currently in.
             Vector3i cell = VectorUtility.FloorVec3(origin);
-            World world = Minecraft.Instance.CurrentWorld!;
+            World world = Minecraft.Instance.Session.CurrentWorld!;
 
             // Wether to step forward or backward into next cell for each case.
             int stepX = MathF.Sign(direction.X);
