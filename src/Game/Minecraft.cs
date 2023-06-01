@@ -37,7 +37,6 @@ namespace VoxelGame.Game
             Window = window;
 
             Input.OnKeyPressed += Input_OnKeyPressed;
-            Input.OnKeyReleased += Input_OnKeyReleased;
             Input.OnMouseClicked += Input_OnMouseClicked;
 
             BlockRegistry = new BlockRegistry(4);
@@ -57,13 +56,8 @@ namespace VoxelGame.Game
             }
         }
 
-        private void Input_OnKeyReleased(Keys key, int code, KeyModifiers modifiers)
-        {
-            if (key == Keys.F4)
-                Window.SetWireframe(false);
-        }
-
         private bool mouseLocked = true;
+        private bool wireframe = false;
         private BlockType _blockInHand = BlockType.Earth;
 
         private void Input_OnKeyPressed(Keys key, int code, KeyModifiers modifiers)
@@ -76,7 +70,8 @@ namespace VoxelGame.Game
                     break;
 
                 case Keys.F3:
-                    Window.SetWireframe(true);
+                    wireframe = !wireframe;
+                    Window.SetWireframe(wireframe);
                     break;
 
                 case Keys.F:
