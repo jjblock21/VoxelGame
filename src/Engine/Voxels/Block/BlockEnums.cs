@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VoxelGame.Engine.Voxels
+namespace VoxelGame.Engine.Voxels.Block
 {
     /// <summary>
     /// Type: Flags enum

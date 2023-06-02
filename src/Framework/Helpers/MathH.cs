@@ -15,15 +15,9 @@ namespace VoxelGame.Framework.Helpers
         }
 
         [MethodImpl(INLINE)]
-        public static float ToRad(float degrees)
-        {
-            return MathHelper.DegreesToRadians(degrees);
-        }
+        public static float ToRad(float degrees) => MathHelper.DegreesToRadians(degrees);
 
         [MethodImpl(INLINE)]
-        public static float ToDeg(float radians)
-        {
-            return MathHelper.RadiansToDegrees(radians);
-        }
+        public static float ToDeg(float radians) => MathHelper.RadiansToDegrees(radians);
     }
 }

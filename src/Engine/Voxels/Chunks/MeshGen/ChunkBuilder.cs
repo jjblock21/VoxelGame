@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using VoxelGame.Engine.Voxels.Block;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;

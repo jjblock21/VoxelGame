@@ -97,7 +97,6 @@ namespace VoxelGame.Game
             }
         }
 
-
         // Initialization which requires GL commands.
         public void Init()
         {

@@ -1,6 +1,6 @@
 ﻿using OpenTK.Mathematics;
 
-namespace VoxelGame.Engine.Voxels
+namespace VoxelGame.Engine.Voxels.Block
 {
     public interface IBlockModel
     {
