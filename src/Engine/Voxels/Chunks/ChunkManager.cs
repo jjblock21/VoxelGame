@@ -71,7 +71,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             Builder.BuildChunk(chunk, dontDefer: true);
 
-            // If the block is on the border to other chunks, check if they are affected and rebuild them aswell.
+            // If the block is on the border to other chunks, check if they are affected and rebuild them as well.
             if (z >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(0), x, y, 0);
             if (z <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(2), x, y, 15);
             if (x >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(1), 0, y, z);
@@ -85,7 +85,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             if (Chunks.TryGetValue(location, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
             {
-                // Dont rebuild the chunk if the block next to the affected block is an air block.
+                // Don't rebuild the chunk if the block next to the affected block is an air block.
                 if (chunk.Blocks![x, y, z] == BlockType.Air) return;
 
                 // Rebuild the chunk if the block next to the affected block culls against it.

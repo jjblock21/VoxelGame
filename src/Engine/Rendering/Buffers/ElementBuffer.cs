@@ -32,7 +32,7 @@ namespace VoxelGame.Engine.Rendering.Buffers
         public void Bind() => GL.BindBuffer(BufferTarget.ElementArrayBuffer, Handle);
 
         /// <summary>
-        /// Deltes the underlying buffer object.
+        /// Deletes the underlying buffer object.
         /// </summary>
         public void Free() => GL.DeleteBuffer(Handle);
     }

@@ -124,7 +124,7 @@ namespace VoxelGame.Game
             ErrorHandler.Section("Create SpriteBatch");
             SpriteBatch = new SpriteBatch(spriteShader, 64, Window.Size);
 
-            ErrorHandler.Section("Intialize fonts");
+            ErrorHandler.Section("Initialize fonts");
 
             Texture2D fontTexture = Texture2D.FromImage(Resources.ReadImage("fonts/default.png"));
             GlyphAtlas glyphAtlas = new GlyphAtlas(fontTexture, 5, 6);
@@ -135,7 +135,7 @@ namespace VoxelGame.Game
 
             InitBlocks();
 
-            // Upload the gnerated texture atlas to OpenGL.
+            // Upload the generated texture atlas to OpenGL.
             Texture2D worldTexture = Texture2D.FromImage(TextureAtlas.Texture);
 
             ErrorHandler.Section("Init world");
@@ -144,7 +144,7 @@ namespace VoxelGame.Game
             VertexArrayObject chunkMeshVao = new VertexArrayObject();
             chunkMeshVao.AddVertexAttrib(0, 3, 0); // Vertex position
             chunkMeshVao.AddVertexAttrib(0, 2, 3 * sizeof(float)); // Texture index
-            chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brihgness
+            chunkMeshVao.AddVertexAttrib(0, 1, 5 * sizeof(float)); // Vertex brightness
 
             _session = new Session(new WorldRenderer(chunkMeshVao, worldShader, worldTexture, _camera!));
 

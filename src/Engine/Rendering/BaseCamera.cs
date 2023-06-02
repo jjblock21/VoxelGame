@@ -6,7 +6,7 @@ namespace VoxelGame.Engine.Rendering
 {
     /// <summary>
     /// Base class, handling the transform, view and projection matrices.<br/>
-    /// Designed to be extended to implement behaviour.
+    /// Designed to be extended to implement behavior.
     /// </summary>
     public class BaseCamera
     {
@@ -51,10 +51,10 @@ namespace VoxelGame.Engine.Rendering
                 _dirtyFlags |= DirtyFlags.ProjViewMatrix;
             }
 
-            // Update the GL viewport and aspect ratio if the viewport has changed.
+            // Update the GL view port and aspect ratio if the view port has changed.
             if ((_dirtyFlags & DirtyFlags.Viewport) != 0)
             {
-                // Update viewport and aspect ratio.
+                // Update view port and aspect ratio.
                 GL.Viewport(0, 0, _viewport.X, _viewport.Y);
                 _aspectRatio = _viewport.X / (float)_viewport.Y;
 
@@ -99,7 +99,7 @@ namespace VoxelGame.Engine.Rendering
         }
 
         /// <summary>
-        /// Changes the viewport of the camera. (Does not need to be called from within a GL context)
+        /// Changes the view port of the camera. (Does not need to be called from within a GL context)
         /// </summary>
         public void ChangeViewport(Vector2i viewport)
         {
@@ -108,7 +108,7 @@ namespace VoxelGame.Engine.Rendering
         }
 
         /// <summary>
-        /// The fov on the y axis of the viewport in radians.
+        /// The fov on the y axis of the view port in radians.
         /// </summary>
         public float Fov
         {
@@ -121,7 +121,7 @@ namespace VoxelGame.Engine.Rendering
         }
 
         /// <summary>
-        /// The fov on the y axis of the viewport in degrees.
+        /// The fov on the y axis of the view port in degrees.
         /// </summary>
         public float FovDeg
         {

@@ -11,7 +11,7 @@ namespace VoxelGame
             McWindow minecraft = new McWindow();
 
 #if RELEASE
-            // Print the exception through the logger in realease mode.
+            // Print the exception through the logger in release mode.
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
                 Exception exception = (Exception)e.ExceptionObject;

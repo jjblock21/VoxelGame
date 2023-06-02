@@ -17,7 +17,7 @@ namespace VoxelGame.Engine
         /// <param name="origin">Origin of the ray.</param>
         /// <param name="direction">Normalized direction of the ray.</param>
         /// <param name="length">Max distance to cast the ray.</param>
-        /// <param name="result">Result struct, contianing information about the hit or <see langword="default"/></param>
+        /// <param name="result">Result struct, containing information about the hit or <see langword="default"/></param>
         /// <returns><see langword="true"/> if the ray hit a block that is not <see cref="BlockType.Air"/></returns>
         /// <exception cref="ArgumentException"/>
         [MethodImpl(OPTIMIZE)]
@@ -35,7 +35,7 @@ namespace VoxelGame.Engine
             Vector3i cell = VectorUtility.FloorVec3(origin);
             World world = Minecraft.Instance.Session.CurrentWorld!;
 
-            // Wether to step forward or backward into next cell for each case.
+            // Whether to step forward or backward into next cell for each case.
             int stepX = MathF.Sign(direction.X);
             int stepY = MathF.Sign(direction.Y);
             int stepZ = MathF.Sign(direction.Z);
@@ -99,7 +99,7 @@ namespace VoxelGame.Engine
 
             while (state == 0)
             {
-                // Find smallest distance and advance ray by the corrensponding case.
+                // Find smallest distance and advance ray by the corresponding case.
                 if (nextFaceX < nextFaceY)
                 {
                     if (nextFaceX < nextFaceZ) advanceRayX();
@@ -146,7 +146,7 @@ namespace VoxelGame.Engine
             public readonly Vector3i Location;
 
             /// <summary>
-            /// The direction of the face which was hit as a directon integer.
+            /// The direction of the face which was hit as a direction integer.
             /// </summary>
             public readonly uint FaceDirection;
 

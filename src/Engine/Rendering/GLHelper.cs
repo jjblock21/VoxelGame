@@ -11,7 +11,7 @@ namespace VoxelGame.Engine.Rendering
         public const int DEFAULT_TEX_FILTER = 0x2600; // Texture(Mag/Min)Filter.Nearest
 
         /// <summary>
-        /// Applies settigns for texture wrap and filtering to a texture.
+        /// Applies settings for texture wrap and filtering to a texture.
         /// </summary>
         public static void ApplyDefaultTexParams()
         {
@@ -45,7 +45,7 @@ namespace VoxelGame.Engine.Rendering
         /// <summary>
         /// Uploads a data from an array into a vertex buffer without reallocating it.
         /// </summary>
-        /// <typeparam name="T">Unamnaged type of the data.</typeparam>
+        /// <typeparam name="T">Unmanaged type of the data.</typeparam>
         /// <param name="buffer">Target vertex buffer.</param>
         /// <param name="data">Array containing the data.</param>
         /// <param name="size">Number of elements from the data array to move into the buffers data store.</param>
@@ -57,11 +57,8 @@ namespace VoxelGame.Engine.Rendering
         }
 
         /// <summary>
-        /// Same as <see cref="GL.ClearColor(Color4)"/> but taking its aguments as bytes.
+        /// Same as <see cref="GL.ClearColor(Color4)"/> but taking its arguments as bytes.
         /// </summary>
-        /// <param name="r"></param>
-        /// <param name="g"></param>
-        /// <param name="b"></param>
         public static void ClearColor(byte r, byte g, byte b)
         {
             GL.ClearColor(r / 255f, g / 255f, b / 255f, 1f);

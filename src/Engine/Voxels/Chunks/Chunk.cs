@@ -13,7 +13,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public volatile BlockType[,,]? Blocks;
         public volatile Mesh? Mesh;
 
-        public volatile GenStageEnum GenStage; // Note: I dont actually think this needs to be volatile.
+        public volatile GenStageEnum GenStage; // Note: I don't actually think this needs to be volatile.
         public volatile TaskState AsyncStage;
 
         public readonly Vector3i Location; // Position is stored twice, here and in the worlds dictionary, for ease of use.
@@ -45,7 +45,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public enum GenStageEnum
         {
             /// <summary>
-            /// The chunk is still waiting to recieve its data.
+            /// The chunk is still waiting to receive its data.
             /// </summary>
             NoData = 0,
             /// <summary>

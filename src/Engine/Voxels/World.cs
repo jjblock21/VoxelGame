@@ -45,7 +45,7 @@ namespace VoxelGame.Engine.Voxels
         /// <returns><see langword="false"/> if the chunk the block would be placed in is not loaded or if nothing was changed.</returns>
         public bool TrySetBlock(Vector3i location, BlockType type)
         {
-            // Split absolute location into chunk & block indices and get the affected chunk.
+            // Split absolute location into chunk & block indexes and get the affected chunk.
             (Vector3i chunkIndex, Vector3i blockIndex) = ConvertHelper.PosToChunkBlockIndex(location);
             if (_chunkMgr.Chunks.TryGetValue(chunkIndex, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
             {

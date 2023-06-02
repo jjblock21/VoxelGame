@@ -7,19 +7,19 @@ namespace VoxelGame.Engine.Voxels.Block
         /// <summary>
         /// Build the mesh for the entire block.
         /// </summary>
-        /// <param name="totalVerts">Total ammount of vertices in the vertex buffer.</param>
+        /// <param name="totalVerts">Total amount of vertices in the vertex buffer.</param>
         /// <param name="vertices">Array of vertex data.</param>
         /// <param name="indices">Array of index data.</param>
-        /// <returns><see langword="false"/> if the generated data should be ignored, vertices and indices can be null here.</returns>
+        /// <returns><see langword="false"/> if the generated data should be ignored, vertices and indexes can be null here.</returns>
         bool BuildMesh(Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices);
 
         /// <summary>
         /// Build the mesh for one face of the block.
         /// </summary>
-        /// <param name="totalVerts">Total ammount of vertices in the vertex buffer.</param>
+        /// <param name="totalVerts">Total amount of vertices in the vertex buffer.</param>
         /// <param name="vertices">Array of vertex data.</param>
         /// <param name="indices">Array of index data.</param>
-        /// <returns><see langword="false"/> if the generated data should be ignored, vertices and indices can be null here.</returns>
+        /// <returns><see langword="false"/> if the generated data should be ignored, vertices and indexes can be null here.</returns>
         bool BuildFace(uint direction, Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices);
     }
 }

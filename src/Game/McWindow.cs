@@ -31,7 +31,7 @@ namespace VoxelGame.Game
 #endif
         }
 
-        // Dont run code in here as exceptions will not be handled correctly.
+        // Don't run code in here as exceptions will not be handled correctly.
         public McWindow() : base(
             GameWindowSettings.Default,
             new NativeWindowSettings()

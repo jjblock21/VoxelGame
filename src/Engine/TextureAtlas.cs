@@ -99,7 +99,7 @@ namespace VoxelGame.Engine
             // (1f / Rows): Normalized height of a texture.
             float bottom = top + 1f / Rows - SMALL_NUMBER * 2;
 
-            // Small number is added to avoid pulling in pixels from neighbouring textures.
+            // Small number is added to avoid pulling in pixels from neighboring textures.
             // Return coordinates for all 4 vertices in a 1D array.
             return new float[8] { left, bottom, right, bottom, right, top, left, top };
         }

@@ -35,7 +35,7 @@ namespace VoxelGame.Game
 
         public override void Update(double deltaTime)
         {
-            // Get forward and right movment axes.
+            // Get forward and right movement axes.
             Vector3 forward = _transformMatrix.GetForwardRaw() * discardY;
             forward.NormalizeFast();
             Vector3 right = _transformMatrix.GetRightRaw() * discardY;
@@ -74,7 +74,7 @@ namespace VoxelGame.Game
             base.Update(deltaTime);
         }
 
-        // Since the matrix should never be scaled we dont neeed to normalize these.
+        // Since the matrix should never be scaled we don't need to normalize these.
         /// <summary>
         /// The forward vector of the cameras transform matrix.
         /// </summary>

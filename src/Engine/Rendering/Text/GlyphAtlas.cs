@@ -4,7 +4,7 @@ using System;
 namespace VoxelGame.Engine.Rendering.Text
 {
     /// <summary>
-    /// Simple class for indexing charracters from a texture atlas.
+    /// Simple class for indexing characters from a texture atlas.
     /// </summary>
     public class GlyphAtlas
     {
@@ -19,7 +19,7 @@ namespace VoxelGame.Engine.Rendering.Text
         private float _textureGlyphHeight;
         private Vector2[] _glyphCoords;
 
-        /// <param name="texture">The atlas texture. (needs to contain 95 charracters, UTF-16 code 32 to 126)</param>
+        /// <param name="texture">The atlas texture. (needs to contain 95 characters, UTF-16 code 32 to 126)</param>
         /// <param name="glyphWidth">Width of a glyph on the texture.</param>
         /// <param name="glyphHeight">Height of a glyph on the texture.</param>
         /// <exception cref="ArgumentException"/>
@@ -43,7 +43,7 @@ namespace VoxelGame.Engine.Rendering.Text
             int glyphsPerRow = texture.Width / glyphWidth;
             for (int i = 0; i < 126 - 32 + 1; i++)
             {
-                // Calculate the x and y coordinates from the index based on the number of gylphs per row,
+                // Calculate the x and y coordinates from the index based on the number of glyphs per row,
                 // then divide by glyphs per row to obtain the position in texture space.
                 float x = (float)(i % glyphsPerRow) / glyphsPerRow;
                 float y = (float)(i / glyphsPerRow) / glyphsPerRow;
@@ -52,19 +52,19 @@ namespace VoxelGame.Engine.Rendering.Text
         }
 
         /// <summary>
-        /// Converts a UTF-16 charracter into an index for the texture atlas.
+        /// Converts a UTF-16 character into an index for the texture atlas.
         /// </summary>
         public static int CharToIndex(char c)
         {
-            // ASCII is conatined in UTF-16 (which is what c# uses) so we can convert between them easily.
+            // ASCII is contained in UTF-16 (which is what c# uses) so we can convert between them easily.
             // ASCII Range 32-126
-            // -1 is to convert the charracter into a zero based index
-            if (c < 33 || c > 126) return 127 - 32 - 1; // Index of the error charracter.
-            return c - 32 - 1; // -32 to exclude the 31 invisible charracters at the beginning and space.
+            // -1 is to convert the character into a zero based index
+            if (c < 33 || c > 126) return 127 - 32 - 1; // Index of the error character.
+            return c - 32 - 1; // -32 to exclude the 31 invisible characters at the beginning and space.
         }
 
         /// <summary>
-        /// Returns the source rectangle for the given charracter.
+        /// Returns the source rectangle for the given character.
         /// </summary>
         public Vector4 this[char c]
         {

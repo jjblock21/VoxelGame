@@ -63,7 +63,7 @@ namespace VoxelGame.Engine.Rendering
 
         #region Static
         /// <summary>
-        /// Creates a texure, copies the images data into the texture and disposes of the image.
+        /// Creates a texture, copies the images data into the texture and disposes of the image.
         /// </summary>
         /// <param name="image">Image to create the texture from</param>
         public static Texture2D FromImage(Image<Rgba32> image)

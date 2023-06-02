@@ -16,7 +16,7 @@ namespace VoxelGame.Engine.Voxels.Helpers
         }
 
         /// <summary>
-        /// Converts an absolute location in the world to chunk and block indices.
+        /// Converts an absolute location in the world to chunk and block indexes.
         /// </summary>
         /// <returns>Chunk index and block index in that order.</returns>
         public static (Vector3i, Vector3i) PosToChunkBlockIndex(Vector3 pos)

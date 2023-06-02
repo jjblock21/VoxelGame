@@ -8,7 +8,7 @@ namespace VoxelGame.Game.Blocks.Models
         #region Face Data
         private const uint NUM_QUAD_VERTS = 4;
 
-        //TODO: Faces on the debug block are still not facing the girection they should.
+        //TODO: Faces on the debug block are still not facing the direction they should.
 
         // Vertices for every corner of a block.
         public static readonly float[] cornerVerts = new float[24]
@@ -23,7 +23,7 @@ namespace VoxelGame.Game.Blocks.Models
             0, 0, 0  // 7
         };
 
-        // Indices to form a quad (clockwise)
+        // Indexes to form a quad (clockwise)
         public static readonly uint[] quadIndices = new uint[6]
         {
             0, 2, 1, 0, 3, 2
@@ -50,13 +50,13 @@ namespace VoxelGame.Game.Blocks.Models
 
             float[] texCoords = Minecraft.Instance.TextureAtlas[textureIndex];
 
-            // Retrive row containing vertex mappings for face from direction.
+            // Retrieve row containing vertex mappings for face from direction.
             uint vertMappingRow = direction * NUM_QUAD_VERTS;
             for (int i = 0; i < NUM_QUAD_VERTS; i++)
             {
                 int vertIndex = i * ChunkBuilder.BUFFER_STRIDE;
 
-                // For every vertex mapping, retrive the vertexes row in the vertex array...
+                // For every vertex mapping, retrieve the vertexes row in the vertex array...
                 uint vertRow = faceVertMappings[vertMappingRow + i] * 3;
 
                 // ...and add the coordinates of the vertex in that row to the list.
@@ -80,11 +80,11 @@ namespace VoxelGame.Game.Blocks.Models
                 vertices[vertIndex + 5] = brightness;
             }
 
-            // Return indices to form a quad.
+            // Return indexes to form a quad.
             for (uint i = 0; i < quadIndices.Length; i++)
                 indices[i] = quadIndices[i] + totalVerts;
 
-            // Increse the number of total vertices by the number of vertices per face.
+            // Increase the number of total vertices by the number of vertices per face.
             totalVerts += NUM_QUAD_VERTS;
         }
         #endregion

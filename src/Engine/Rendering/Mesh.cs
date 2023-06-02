@@ -30,7 +30,7 @@ namespace VoxelGame.Engine.Rendering
         /// (Buffers are reallocated, Buffers stay bound after)
         /// </summary>
         /// <param name="vertices">Array of vertex parameters.</param>
-        /// <param name="indices">Array of indices.</param>
+        /// <param name="indices">Array of indexes.</param>
         /// <exception cref="InvalidOperationException"></exception>
         public void SetData(float[] vertices, uint[] indices)
         {

@@ -26,7 +26,7 @@ namespace VoxelGame.Engine.Voxels
 
             WorldRenderer.Begin();
             // Note: I'm iterating over a dictionary here which is not the best idea, but I couldn't find a better collection satisfying all my needs.
-            // Perhaps you could change this to only regenerate the enumerator every time the colection is modified?
+            // Perhaps you could change this to only regenerate the enumerator every time the collection is modified?
             // Or make a custom unordered concurrent collection you can access through keys and which has fast iteration speeds if possible idk.
             foreach (Chunk chunk in ChunkManager.Chunks.Values)
             {

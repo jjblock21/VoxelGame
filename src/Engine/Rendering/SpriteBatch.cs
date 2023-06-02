@@ -48,7 +48,7 @@ namespace VoxelGame.Engine.Rendering
             _verts = new float[batchSize * 4 * NUM_QUAD_VERTS];
             _vertColors = new uint[batchSize * NUM_QUAD_VERTS];
 
-            // Generate quad indices.
+            // Generate quad indexes.
             ushort[] indices = new ushort[batchSize * quadIndices.Length];
             for (int i = 0; i < batchSize; i++)
             {
@@ -61,11 +61,11 @@ namespace VoxelGame.Engine.Rendering
             _ebo = new ElementBuffer<ushort>();
             _ebo.BufferData(indices, BufferUsageHint.StaticDraw);
 
-            // Create vertax array object.
+            // Create vertex array object.
             _vao = new VertexArrayObject();
             _vao.AddVertexAttrib(0, 2, 0); // Vertex position
             _vao.AddVertexAttrib(0, 2, 2 * sizeof(float)); // Texture coords
-            _vao.AddVertexAttribI(1, 1, 0, VertexAttribIntegerType.UnsignedInt); // Color (in a seperate buffer)
+            _vao.AddVertexAttribI(1, 1, 0, VertexAttribIntegerType.UnsignedInt); // Color (in a separate buffer)
 
             // Create the vertex buffers with its size set to the max batch size.
             _vbo = new VertexBuffer<float>(4);
@@ -191,7 +191,7 @@ namespace VoxelGame.Engine.Rendering
 
         private void UploadBatch()
         {
-            // Using sub data here to not to avoid uploading the empty space in the array aswell.
+            // Using sub data here to not to avoid uploading the empty space in the array as well.
             int coordBufferSize = _numQuads * 4 * NUM_QUAD_VERTS;
             GLHelper.VertexBufferSubData(_vbo, _verts, coordBufferSize);
 

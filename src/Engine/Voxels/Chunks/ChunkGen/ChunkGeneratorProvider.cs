@@ -23,7 +23,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
         /// <param name="location"></param>
         public void GenChunk(Vector3i location)
         {
-            //TODO: Dont create the chunk object and then dispose of it again if the chunk already exists.
+            //TODO: Don't create the chunk object and then dispose of it again if the chunk already exists.
 
             // Create the empty chunk class and add it to the world...
             Chunk chunk = new Chunk(location);
@@ -32,7 +32,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
                 Process(chunk);
 
             // Print a debug message to the log as this should ideally be avoided.
-            else McWindow.Logger.Debug($"Chunk ({location.X},{location.Y},{location.Z}) already exists, cancelling generator.");
+            else McWindow.Logger.Debug($"Chunk ({location.X},{location.Y},{location.Z}) already exists, canceling generator.");
         }
 
         private void Process(Chunk chunk)
@@ -49,11 +49,11 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 
         private void BuildNeighbours(Chunk chunk)
         {
-            // TODO: Long time task: Optimize this code to only do neccessary checks.
+            // TODO: Long time task: Optimize this code to only do necessary checks.
             // Directions only go to 6 so 7 will just return (0,0,0) which will check the current chunk.
             for (uint dir = 0; dir < 7; dir++)
             {
-                // For every surrounding chunk, check the build stage of its neighbours.
+                // For every surrounding chunk, check the build stage of its neighbors.
                 Vector3i location = chunk!.Location + ConvertHelper.DirToVector(dir);
                 if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) continue;
 

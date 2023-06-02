@@ -5,7 +5,7 @@ using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
 namespace VoxelGame.Framework.Helpers
 {
-    /// <summary>Math Helpher</summary>
+    /// <summary>Math Helper</summary>
     public static class MathH
     {
         public static float Mod(float x, float m)

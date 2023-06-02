@@ -15,7 +15,7 @@ namespace VoxelGame.Framework
         private float _normalizeFactor;
 
         /// <param name="updateInterval">
-        /// Duration to record the framerate for before updating <see cref="FrameRate"/> in ms.
+        /// Duration to record the frame rate for before updating <see cref="FrameRate"/> in ms.
         /// </param>
         public FrameCounter(float updateInterval)
         {

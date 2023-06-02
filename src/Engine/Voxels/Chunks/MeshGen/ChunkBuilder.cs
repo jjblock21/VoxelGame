@@ -95,14 +95,14 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                     {
                         token.ThrowIfCancellationRequested();
 
-                        // _target.Blocks will only be null if this is called in the worng stage.
-                        // If this happends I fucked up big somewhere.
+                        // _target.Blocks will only be null if this is called in the wrong stage.
+                        // If this happens I fucked up big somewhere.
                         if (_target!.Blocks![x, y, z] == BlockType.Air) continue;
 
                         BlockEntry data = Minecraft.Instance.BlockRegistry[_target.Blocks[x, y, z]];
                         Vector3i index = new Vector3i(x, y, z);
 
-                        // If the block should not be culled agains other blocks, generate all faces and exit.
+                        // If the block should not be culled against other blocks, generate all faces and exit.
                         if ((data.Params & BlockParams.DontCull) != 0)
                         {
                             if (data.Model.BuildMesh(index, ref _totalVertices, out float[]? verts, out uint[]? ind))
@@ -139,12 +139,12 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             [MethodImpl(INLINE)]
             bool isTransparent(int i, int bx, int by, int bz)
             {
-                BlockType type = _neighbours[i]!.Blocks![bx, by, bz]; //Sometimes the neighbours are created but not generated yet.
+                BlockType type = _neighbours[i]!.Blocks![bx, by, bz]; //Sometimes the neighbors are created but not generated yet.
                 return type == BlockType.Air || (data.Params & BlockParams.DontCull) != 0;
             }
 
-            // Check if position is outside of chunk and check neighbour.
-            // We expect to only have to check bordering blocks to the chunk, so the positions to check are hardcoded.
+            // Check if position is outside of chunk and check neighbor.
+            // We expect to only have to check bordering blocks to the chunk, so the positions to check are hard coded.
             if (z > 15) return _neighbours[0] == null ? SOLID_WORLD_EDGE : isTransparent(0, x, y, 0);
             if (x > 15) return _neighbours[1] == null ? SOLID_WORLD_EDGE : isTransparent(1, 0, y, z);
             if (z < 0) return _neighbours[2] == null ? SOLID_WORLD_EDGE : isTransparent(2, x, y, 15);
