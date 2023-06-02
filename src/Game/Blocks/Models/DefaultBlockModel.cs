@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using VoxelGame.Engine.Voxels;
+using VoxelGame.Engine.Voxels.Block;
 
 namespace VoxelGame.Game.Blocks.Models
 {

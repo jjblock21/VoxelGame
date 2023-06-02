@@ -10,6 +10,8 @@ using VoxelGame.Engine.Rendering.Text;
 using VoxelGame.Framework;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game.Blocks.Models;
+using VoxelGame.Engine.Voxels.Block;
+using VoxelGame.Engine.Voxels.Helpers;
 
 namespace VoxelGame.Game
 {
@@ -85,15 +87,15 @@ namespace VoxelGame.Game
         private void BreakBlock()
         {
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
-                Session.CurrentWorld?.TryPlaceBlock(result.Location, BlockType.Air);
+                Session.CurrentWorld?.TrySetBlock(result.Location, BlockType.Air);
         }
 
         private void PlaceBlock()
         {
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
             {
-                Vector3i location = result.Location + World.DirToVector(result.FaceDirection);
-                Session.CurrentWorld?.TryPlaceBlock(location, _blockInHand);
+                Vector3i location = result.Location + ConvertHelper.DirToVector(result.FaceDirection);
+                Session.CurrentWorld?.TrySetBlock(location, _blockInHand);
             }
         }
 

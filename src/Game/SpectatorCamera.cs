@@ -44,19 +44,13 @@ namespace VoxelGame.Game
             // Build input vector from keyboard input.
             Vector3 input = Vector3.Zero;
 
-            if (Input.IsKeyPressed(Keys.W))
-                input += forward;
-            else if (Input.IsKeyPressed(Keys.S))
-                input -= forward;
-            if (Input.IsKeyPressed(Keys.A))
-                input += right;
-            else if (Input.IsKeyPressed(Keys.D))
-                input -= right;
+            if (Input.IsKeyPressed(Keys.W)) input += forward;
+            if (Input.IsKeyPressed(Keys.S)) input -= forward;
+            if (Input.IsKeyPressed(Keys.A)) input += right;
+            if (Input.IsKeyPressed(Keys.D)) input -= right;
 
-            if (Input.IsKeyPressed(Keys.Space))
-                input.Y += 1;
-            else if (Input.IsKeyPressed(Keys.LeftControl))
-                input.Y -= 1;
+            if (Input.IsKeyPressed(Keys.Space)) input.Y += 1;
+            if (Input.IsKeyPressed(Keys.LeftControl)) input.Y -= 1;
 
             // For some reason the default Normalize makes the vector NaN here.
             input.NormalizeFast();

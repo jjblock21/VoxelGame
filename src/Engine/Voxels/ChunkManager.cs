@@ -8,6 +8,8 @@ using VoxelGame.Engine.Voxels.Chunks.ChunkGen;
 using System.Runtime.CompilerServices;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game;
+using VoxelGame.Engine.Voxels.Block;
+using VoxelGame.Engine.Voxels.Helpers;
 
 namespace VoxelGame.Engine.Voxels
 {
@@ -53,12 +55,12 @@ namespace VoxelGame.Engine.Voxels
             Builder.BuildChunk(chunk, dontDefer: true);
 
             // If the block is on the border to other chunks, check if they are affected and rebuild them aswell.
-            if (z >= 15) RebuildNeighbourBlock(location + World.DirToVector(0), x, y, 0);
-            if (z <= 0) RebuildNeighbourBlock(location + World.DirToVector(2), x, y, 15);
-            if (x >= 15) RebuildNeighbourBlock(location + World.DirToVector(1), 0, y, z);
-            if (x <= 0) RebuildNeighbourBlock(location + World.DirToVector(3), 15, y, z);
-            if (y >= 15) RebuildNeighbourBlock(location + World.DirToVector(4), x, 0, z);
-            if (y <= 0) RebuildNeighbourBlock(location + World.DirToVector(5), x, 15, z);
+            if (z >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(0), x, y, 0);
+            if (z <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(2), x, y, 15);
+            if (x >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(1), 0, y, z);
+            if (x <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(3), 15, y, z);
+            if (y >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(4), x, 0, z);
+            if (y <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(5), x, 15, z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
@@ -75,32 +77,5 @@ namespace VoxelGame.Engine.Voxels
                     Builder.BuildChunk(chunk, dontDefer: true);
             }
         }
-
-        #region Static
-
-        /// <returns>The index of the chunk the given position is in.</returns>
-        public static Vector3i GetChunkIndex(Vector3 pos)
-        {
-            int x = (int)MathF.Floor(pos.X * 0.0625f);
-            int y = (int)MathF.Floor(pos.Y * 0.0625f);
-            int z = (int)MathF.Floor(pos.Z * 0.0625f);
-            return new Vector3i(x, y, z);
-        }
-
-        /// <summary>
-        /// Converts an absolute location in the world to chunk and block indices.
-        /// </summary>
-        /// <returns>Chunk index and block index in that order.</returns>
-        public static (Vector3i, Vector3i) GetChunkBlockIndex(Vector3 pos)
-        {
-            // Calculate block index in chunk.
-            int bx = (int)MathH.Mod(pos.X, 16f);
-            int by = (int)MathH.Mod(pos.Y, 16f);
-            int bz = (int)MathH.Mod(pos.Z, 16f);
-            Vector3i chunkIndex = GetChunkIndex(pos);
-            return (chunkIndex, new Vector3i(bx, by, bz));
-        }
-
-        #endregion
     }
 }

@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Engine.Voxels.Helpers;
 using VoxelGame.Game;
 
 namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
@@ -53,7 +54,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
             for (uint dir = 0; dir < 7; dir++)
             {
                 // For every surrounding chunk, check the build stage of its neighbours.
-                Vector3i location = chunk!.Location + World.DirToVector(dir);
+                Vector3i location = chunk!.Location + ConvertHelper.DirToVector(dir);
                 if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) continue;
 
                 /*
@@ -84,7 +85,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
         {
             for (uint dir = 0; dir < 6; dir++)
             {
-                Vector3i l = location + World.DirToVector(dir);
+                Vector3i l = location + ConvertHelper.DirToVector(dir);
                 if (_chunkManager.Chunks.TryGetValue(l, out Chunk? chunk) && chunk.GenStage == Chunk.GenStageEnum.NoData)
                     return false;
             }
