@@ -47,6 +47,24 @@ namespace VoxelGame.Engine.Voxels
         }
 
         /// <summary>
+        /// Moves the chunk marking the center of the currently loaded region.
+        /// </summary>
+        public void MoveCenterChunk(Vector3 location)
+        {
+            /* Start two tasks:
+             * 1: Loop over the square around the center chunk and generate chunks within a cylinder (r = render distance, h = half render distance)
+             * which are not generated yet.
+             * 2: Loop over all chunk currently in the world and delete them if they around outside the cylinder.
+             * 
+             * Before starting new tasks we also probably need to check for running ones and stop them, 
+             * or exit if other tasks have been dispatched but haven't started yet.
+             * If the center chunk changes to often, tasks may be stopped and not generate/delte all chunks,
+             * so there needs to be some kind of counter to count how often this happens and halt the renderer to wait for 
+             * completion of the tasks if it happens to often.
+            */
+        }
+
+        /// <summary>
         /// Schedules a chunk affected by a block modification for being rebuilt.
         /// </summary>
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]

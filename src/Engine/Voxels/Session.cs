@@ -10,6 +10,8 @@ namespace VoxelGame.Engine.Voxels
         public readonly ChunkManager ChunkManager;
         public readonly WorldRenderer WorldRenderer;
 
+        public const int RENDER_DISTANCE = 4;
+
         public World? CurrentWorld { get; private set; }
 
         public Session(WorldRenderer worldRenderer)
