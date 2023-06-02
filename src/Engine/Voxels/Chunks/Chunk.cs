@@ -26,7 +26,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Location = location;
             Offset = location * 16;
             GenStage = GenStageEnum.NoData;
-            AsyncStage = TaskState.None;
+            AsyncStage = TaskState.Inert;
             BuilderCancelSrc = new CancelTokenSrc();
         }
 

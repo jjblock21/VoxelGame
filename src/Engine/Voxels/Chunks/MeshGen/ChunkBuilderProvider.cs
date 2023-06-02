@@ -71,7 +71,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 chunk.AsyncStage = TaskState.Running;
                 ChunkBuildResult result = BuildChunkMain(chunk, token);
-                chunk.AsyncStage = TaskState.None;
+                chunk.AsyncStage = TaskState.Inert;
 
                 _processedChunks.Enqueue(result);
             }, token);
@@ -92,12 +92,12 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                     if (!_watingSyncChunks.TryDequeue(out Chunk? chunk)) break;
 
                     // If a task is running or has been dispatched for building cancel it.
-                    if (chunk.AsyncStage != TaskState.None)
+                    if (chunk.AsyncStage != TaskState.Inert)
                         chunk.BuilderCancelSrc.Cancel();
 
                     // This doesn't cause any problems with another task beign dispatched while this is still running,
                     // becasue this is running synchronously.
-                    chunk.AsyncStage = TaskState.None;
+                    chunk.AsyncStage = TaskState.Inert;
                     UploadMesh(BuildChunkMain(chunk, CancellationToken.None));
                 }
                 return;
