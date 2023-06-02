@@ -1,7 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using System.Collections.Concurrent;
 using VoxelGame.Engine.Voxels.Chunks.MeshGen;
-using VoxelGame.Engine.Voxels.Chunks;
 using VoxelGame.Framework.Helpers;
 using System;
 using VoxelGame.Engine.Voxels.Chunks.ChunkGen;
@@ -11,7 +10,7 @@ using VoxelGame.Game;
 using VoxelGame.Engine.Voxels.Block;
 using VoxelGame.Engine.Voxels.Helpers;
 
-namespace VoxelGame.Engine.Voxels
+namespace VoxelGame.Engine.Voxels.Chunks
 {
     public class ChunkManager
     {
@@ -61,7 +60,18 @@ namespace VoxelGame.Engine.Voxels
              * If the center chunk changes to often, tasks may be stopped and not generate/delte all chunks,
              * so there needs to be some kind of counter to count how often this happens and halt the renderer to wait for 
              * completion of the tasks if it happens to often.
-            */
+             */
+
+        }
+
+        private void GenNewChunksTask()
+        {
+
+        }
+
+        private void DelOldChunksTask()
+        {
+
         }
 
         /// <summary>
