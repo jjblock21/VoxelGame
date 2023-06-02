@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Engine.Rendering;
+using VoxelGame.Framework;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {
@@ -55,22 +56,22 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
             // Start the task and pass in a cancellation token from the chunks source.
             // If another task has already been dispatched to work on the chunk, dont start another.
-            if (chunk.AsyncStage == Chunk.AsyncBuildStage.Dispatched) return;
-            chunk.AsyncStage = Chunk.AsyncBuildStage.Dispatched;
+            if (chunk.AsyncStage == TaskState.Dispatched) return;
+            chunk.AsyncStage = TaskState.Dispatched;
 
             CancellationToken token = chunk.BuilderCancelSrc.Token;
             Task.Factory.StartNew(() =>
             {
                 // If an async builder task is already running, cancel it and continue with the new data.
-                if (chunk.AsyncStage == Chunk.AsyncBuildStage.Running)
+                if (chunk.AsyncStage == TaskState.Running)
                 {
                     // The already running task will be cancelled, the current task wont 
                     chunk.BuilderCancelSrc.Cancel();
                 }
 
-                chunk.AsyncStage = Chunk.AsyncBuildStage.Running;
+                chunk.AsyncStage = TaskState.Running;
                 ChunkBuildResult result = BuildChunkMain(chunk, token);
-                chunk.AsyncStage = Chunk.AsyncBuildStage.None;
+                chunk.AsyncStage = TaskState.None;
 
                 _processedChunks.Enqueue(result);
             }, token);
@@ -91,12 +92,12 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                     if (!_watingSyncChunks.TryDequeue(out Chunk? chunk)) break;
 
                     // If a task is running or has been dispatched for building cancel it.
-                    if (chunk.AsyncStage != Chunk.AsyncBuildStage.None)
+                    if (chunk.AsyncStage != TaskState.None)
                         chunk.BuilderCancelSrc.Cancel();
 
                     // This doesn't cause any problems with another task beign dispatched while this is still running,
                     // becasue this is running synchronously.
-                    chunk.AsyncStage = Chunk.AsyncBuildStage.None;
+                    chunk.AsyncStage = TaskState.None;
                     UploadMesh(BuildChunkMain(chunk, CancellationToken.None));
                 }
                 return;

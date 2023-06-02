@@ -14,7 +14,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public volatile Mesh? Mesh;
 
         public volatile GenStageEnum GenStage; // Note: I dont actually think this needs to be volatile.
-        public volatile AsyncBuildStage AsyncStage;
+        public volatile TaskState AsyncStage;
 
         public readonly Vector3i Location; // Position is stored twice, here and in the worlds dictionary, for ease of use.
         public readonly Vector3i Offset; // Location to be passed to the shader.
@@ -26,7 +26,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Location = location;
             Offset = location * 16;
             GenStage = GenStageEnum.NoData;
-            AsyncStage = AsyncBuildStage.None;
+            AsyncStage = TaskState.None;
             BuilderCancelSrc = new CancelTokenSrc();
         }
 
@@ -61,19 +61,6 @@ namespace VoxelGame.Engine.Voxels.Chunks
             /// (Has the value of <see cref="NoData"/> for ease of making it work with already existing code)
             /// </summary>
             Disposed = 0
-        }
-
-        public enum AsyncBuildStage
-        {
-            None,
-            /// <summary>
-            /// A task was disapatched to rebuild the chunk, but hasn't started yet.
-            /// </summary>
-            Dispatched,
-            /// <summary>
-            /// A task to rebuild the chunk is running.
-            /// </summary>
-            Running
         }
     }
 }
