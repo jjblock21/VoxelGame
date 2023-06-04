@@ -57,12 +57,12 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Builder.BuildChunk(chunk, dontDefer: true);
 
             // If the block is on the border to other chunks, check if they are affected and rebuild them as well.
-            if (z >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(0), x, y, 0);
-            if (z <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(2), x, y, 15);
-            if (x >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(1), 0, y, z);
-            if (x <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(3), 15, y, z);
-            if (y >= 15) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(4), x, 0, z);
-            if (y <= 0) RebuildNeighbourBlock(location + ConvertHelper.DirToVector(5), x, 15, z);
+            if (z >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(0), x, y, 0);
+            if (z <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(2), x, y, 15);
+            if (x >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(1), 0, y, z);
+            if (x <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(3), 15, y, z);
+            if (y >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(4), x, 0, z);
+            if (y <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(5), x, 15, z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]

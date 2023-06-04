@@ -48,7 +48,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             {
                 token.ThrowIfCancellationRequested();
 
-                Vector3i location = target.Location + ConvertHelper.DirToVector(dir);
+                Vector3i location = target.Location + ConvertH.DirToVector(dir);
                 Chunk? chunk = Minecraft.Instance.Session.ChunkManager.GetChunk(location);
 
                 // If a chunk exists but doesn't have data yet dont add it to the array.
@@ -118,7 +118,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                         // If yes build that face.
                         for (uint dir = 0; dir < 6; dir++)
                         {
-                            Vector3i d = ConvertHelper.DirToVector(dir);
+                            Vector3i d = ConvertH.DirToVector(dir);
                             if (ShouldRenderFace(x + d.X, y + d.Y, z + d.Z, data))
                             {
                                 if (data.Model.BuildFace(dir, index, ref _totalVertices, out float[]? verts, out uint[]? ind))

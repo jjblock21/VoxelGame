@@ -1,4 +1,4 @@
-﻿namespace VoxelGame.Framework
+﻿namespace VoxelGame.Framework.Threading
 {
     public enum TaskState
     {

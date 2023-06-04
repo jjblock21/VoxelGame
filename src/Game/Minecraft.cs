@@ -83,7 +83,7 @@ namespace VoxelGame.Game
                     break;
 
                 case Keys.F2:
-                    Vector3i chunk = ConvertHelper.PosToChunkIndex(_camera!.Translation);
+                    Vector3i chunk = ConvertH.PosToChunkIndex(_camera!.Translation);
                     Session.ChunkManager.LifetimeManager.MoveCenterChunk(chunk);
                     break;
             }
@@ -99,7 +99,7 @@ namespace VoxelGame.Game
         {
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
             {
-                Vector3i location = result.Location + ConvertHelper.DirToVector(result.FaceDirection);
+                Vector3i location = result.Location + ConvertH.DirToVector(result.FaceDirection);
                 Session.CurrentWorld?.TrySetBlock(location, _blockInHand);
             }
         }

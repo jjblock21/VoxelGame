@@ -4,7 +4,7 @@ using VoxelGame.Framework.Helpers;
 
 namespace VoxelGame.Engine.Voxels.Helpers
 {
-    public static class ConvertHelper
+    public static class ConvertH
     {
         /// <summary>Returns the index of the chunk the given position is in.</summary>
         public static Vector3i PosToChunkIndex(Vector3 pos)

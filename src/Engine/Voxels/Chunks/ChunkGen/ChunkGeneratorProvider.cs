@@ -54,7 +54,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
             for (uint dir = 0; dir < 7; dir++)
             {
                 // For every surrounding chunk, check the build stage of its neighbors.
-                Vector3i location = chunk!.Location + ConvertHelper.DirToVector(dir);
+                Vector3i location = chunk!.Location + ConvertH.DirToVector(dir);
                 if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) continue;
 
                 /*
@@ -85,7 +85,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
         {
             for (uint dir = 0; dir < 6; dir++)
             {
-                Vector3i l = location + ConvertHelper.DirToVector(dir);
+                Vector3i l = location + ConvertH.DirToVector(dir);
                 if (_chunkManager.Chunks.TryGetValue(l, out Chunk? chunk) && chunk.GenStage == Chunk.GenStageEnum.NoData)
                     return false;
             }

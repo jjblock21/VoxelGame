@@ -27,7 +27,7 @@ namespace VoxelGame.Engine.Voxels
         /// <returns><see langword="false"/> if the chunk containing the block is not loaded.</returns>
         public bool TryGetBlock(Vector3i location, out BlockType block)
         {
-            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertHelper.PosToChunkBlockIndex(location);
+            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertH.PosToChunkBlockIndex(location);
             if (_chunkMgr.Chunks.TryGetValue(chunkIndex, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
             {
                 block = chunk!.Blocks![blockIndex.X, blockIndex.Y, blockIndex.Z];
@@ -46,7 +46,7 @@ namespace VoxelGame.Engine.Voxels
         public bool TrySetBlock(Vector3i location, BlockType type)
         {
             // Split absolute location into chunk & block indexes and get the affected chunk.
-            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertHelper.PosToChunkBlockIndex(location);
+            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertH.PosToChunkBlockIndex(location);
             if (_chunkMgr.Chunks.TryGetValue(chunkIndex, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
             {
                 // If nothing will change exit.
