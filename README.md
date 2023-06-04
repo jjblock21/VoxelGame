@@ -1,5 +1,5 @@
 # VoxelGame
-A Minecraft Clone written for fun in C# using OpenTK.\
+A Minecraft Clone written for fun in C# using OpenTK. (Not done yet)\
 **Warning:** Messy code and questionable design choices.
 
 ### Controls
