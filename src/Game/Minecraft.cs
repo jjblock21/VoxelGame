@@ -81,6 +81,11 @@ namespace VoxelGame.Game
                     if (_blockInHand > BlockType.Wood)
                         _blockInHand = BlockType.Stone;
                     break;
+
+                case Keys.F2:
+                    Vector3i chunk = ConvertHelper.PosToChunkIndex(_camera!.Translation);
+                    Session.ChunkManager.LifetimeManager.MoveCenterChunk(chunk);
+                    break;
             }
         }
 
@@ -150,9 +155,9 @@ namespace VoxelGame.Game
 
             ErrorHandler.Section("World gen");
 
-            _session.LoadWorld(chunkManager =>
+            _session.CreateWorld(chunkManager =>
             {
-                // Generate cylinder of chunks.
+                /*// Generate cylinder of chunks.
                 const int radius = 8;
                 const int height = 4;
                 const int radiusSquared = radius * radius;
@@ -160,7 +165,8 @@ namespace VoxelGame.Game
                 {
                     int ldist = vec.X * vec.X + vec.Z * vec.Z;
                     if (ldist < radiusSquared) chunkManager.Generator.GenChunk(vec);
-                });
+                });*/
+                chunkManager.LifetimeManager.MoveCenterChunk(Vector3i.Zero);
             });
 
             ErrorHandler.Section("Game loop");

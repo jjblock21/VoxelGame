@@ -39,6 +39,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             GenStage = GenStageEnum.Disposed;
             Mesh?.Free();
+            Blocks = null; // Just in case
             BuilderCancelSrc.Dispose();
         }
 

@@ -10,7 +10,7 @@ namespace VoxelGame.Engine.Voxels
         public readonly ChunkManager ChunkManager;
         public readonly WorldRenderer WorldRenderer;
 
-        public const int RENDER_DIST = 4;
+        public const int RENDER_DIST = 6;
 
         public World? CurrentWorld { get; private set; }
 
@@ -35,8 +35,7 @@ namespace VoxelGame.Engine.Voxels
             }
         }
 
-        // Temporary
-        public void LoadWorld(Action<ChunkManager> genChunks)
+        public void CreateWorld(Action<ChunkManager> genChunks)
         {
             ChunkManager.ClearChunks();
             CurrentWorld = new World(ChunkManager);

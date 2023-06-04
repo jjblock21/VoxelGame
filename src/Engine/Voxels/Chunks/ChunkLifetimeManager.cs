@@ -33,8 +33,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
         // Are cancellation tokens necessary here?
         private CancellationTokenSource _createNewCancelSrc;
         private CancellationTokenSource _deleteOldCancelSrc;
-        private volatile TaskState _createNewState;
-        private volatile TaskState _deleteOldState;
+        private volatile TaskState _createNewState = TaskState.Inert;
+        private volatile TaskState _deleteOldState = TaskState.Inert;
         private ConcurrentQueue<Chunk> _chunksToDelete;
 
         private ChunkManager _chunkManager;
@@ -98,7 +98,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 ForCubeWithSizeOfRenderDistance(vec =>
                 {
                     token.ThrowIfCancellationRequested();
-                    if (CheckCylinder(vec)) _chunkManager.Generator.GenChunk(center + vec);
+                    if (CheckCylinder(vec))
+                        _chunkManager.Generator.GenChunk(center + vec);
                 });
             }
             finally
@@ -119,7 +120,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 foreach (Chunk chunk in _chunkManager.Chunks.Values)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (CheckCylinder(chunk.Location - center))
+                    if (!CheckCylinder(chunk.Location - center))
                         toDelete.Add(chunk);
                 }
 
@@ -150,7 +151,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         /// </summary>
         private bool CheckCylinder(Vector3i vec)
         {
-            if (vec.Y < Session.RENDER_DIST / 2 || vec.Y > Session.RENDER_DIST / 2) return false;
+            if (vec.Y < (-Session.RENDER_DIST / 2) || vec.Y > (Session.RENDER_DIST / 2)) return false;
             return (vec.X * vec.X + vec.Z * vec.Z) < (Session.RENDER_DIST * Session.RENDER_DIST);
         }
 

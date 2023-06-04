@@ -18,6 +18,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
         public readonly ChunkBuilderProvider Builder;
         public readonly ChunkGeneratorProvider Generator;
+        public readonly ChunkLifetimeManager LifetimeManager;
 
         public ChunkManager()
         {
@@ -25,6 +26,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
             Builder = new ChunkBuilderProvider();
             Generator = new ChunkGeneratorProvider(this);
+            LifetimeManager = new ChunkLifetimeManager(this);
         }
 
         public void ClearChunks()
@@ -37,30 +39,13 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public void Update()
         {
             Builder.Update();
+            LifetimeManager.Update();
         }
 
         /// <returns><see langword="null"/> if the chunk is not loaded.</returns>
         public Chunk? GetChunk(Vector3i location)
         {
             return Chunks.TryGetValue(location, out Chunk? c) ? c : null;
-        }
-
-        /// <summary>
-        /// Moves the chunk marking the center of the currently loaded region.
-        /// </summary>
-        public void MoveCenterChunk(Vector3 location)
-        {
-
-        }
-
-        private void GenNewChunksTask()
-        {
-
-        }
-
-        private void DelOldChunksTask()
-        {
-
         }
 
         /// <summary>
