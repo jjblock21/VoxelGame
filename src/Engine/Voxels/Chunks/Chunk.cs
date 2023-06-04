@@ -2,6 +2,7 @@
 using OpenTK.Mathematics;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework;
+using VoxelGame.Framework.Threading;
 using VoxelGame.Game.Blocks;
 using CancelTokenSrc = System.Threading.CancellationTokenSource;
 

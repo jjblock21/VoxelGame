@@ -11,5 +11,7 @@ A Minecraft Clone written for fun in C# using OpenTK. (Not done yet)\
 **RMB:** Place a block\
 **F:** Cycle block in hand\
 \
+**Escape** Free mouse cursor.\
+**F11** Toggles fullscreen.\
 **F3:** Toggles wireframe mode.\
 **F2:** Loads new chunks around the player and delete chunks outside of render distance.

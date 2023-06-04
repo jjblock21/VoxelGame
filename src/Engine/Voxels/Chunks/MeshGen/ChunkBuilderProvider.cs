@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Engine.Rendering;
-using VoxelGame.Framework;
+using VoxelGame.Framework.Threading;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {

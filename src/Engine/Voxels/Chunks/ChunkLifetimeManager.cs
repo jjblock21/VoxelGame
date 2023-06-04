@@ -4,8 +4,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using VoxelGame.Framework;
 using VoxelGame.Framework.Helpers;
+using VoxelGame.Framework.Threading;
 using VoxelGame.Game;
 
 namespace VoxelGame.Engine.Voxels.Chunks
