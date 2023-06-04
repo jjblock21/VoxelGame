@@ -3,13 +3,13 @@ A Minecraft Clone written for fun in C# using OpenTK. (Not done yet)\
 **Warning:** Messy code and questionable design choices.
 
 ### Controls
-**WASD:** Move horizontally\
-**Space/Ctrl:** Move vertically\
-**Shift:** Move 3 times as fast\
+**WASD:** Move\
+**Space/Ctrl:** Move up/down\
+**Shift:** Sprint\
 \
-**LMB:** Break block\
-**RMB:** Place block\
+**LMB:** Break a block\
+**RMB:** Place a block\
 **F:** Cycle block in hand\
 \
-**F3:** Toggle wireframe mode\
-**F2:** Move center chunk to player position and load surrounding chunks.
+**F3:** Toggles wireframe mode.\
+**F2:** Loads new chunks around the player and delete chunks outside of render distance.
