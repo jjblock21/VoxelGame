@@ -132,7 +132,7 @@ namespace VoxelGame.Game
             ErrorHandler.Section("Initialize fonts");
 
             Texture2D fontTexture = Texture2D.FromImage(Resources.ReadImage("fonts/default.png"));
-            GlyphAtlas glyphAtlas = new GlyphAtlas(fontTexture, 5, 6);
+            GlyphAtlas glyphAtlas = new GlyphAtlas(fontTexture, 5, 7);
             TextRenderer = new TextRenderer(glyphAtlas, SpriteBatch, TextRenderer.Settings.Default);
 
             ErrorHandler.Section("Load textures");
@@ -221,14 +221,14 @@ namespace VoxelGame.Game
             // Render crosshair.
             SpriteBatch.Quad((int)(Window.ClientSize.X * 0.5f - 3.5f), (int)(Window.ClientSize.Y * 0.5f - 3.5f), 14, 14, new Vector4i(0, 0, 7, 7));
             // Render fps text background.
-            SpriteBatch.Quad(0, Window.Size.Y - 38, Window.Size.X / 2, 38, color: new Argb(0f, 0f, 0f, 0.6f));
+            SpriteBatch.Quad(0, Window.Size.Y - 46, Window.Size.X / 2, 46, color: new Argb(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
 
             TextRenderer!.Begin();
 
-            TextRenderer.DrawText(6, Window.Size.Y - 16, $"Fps:{Window.FrameRate}", 10);
-            TextRenderer.DrawText(6, Window.Size.Y - 32, $"Facing:{_camera!.Forward}", 10);
+            TextRenderer.DrawText(5, Window.Size.Y - 20, $"Fps:{Window.FrameRate}", 10);
+            TextRenderer.DrawText(5, Window.Size.Y - 40, $"Facing:{_camera!.Forward}", 10);
 
             TextRenderer.Flush();
         }
