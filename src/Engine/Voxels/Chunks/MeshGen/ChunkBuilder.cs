@@ -1,5 +1,4 @@
 ﻿using OpenTK.Mathematics;
-using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -117,7 +116,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             });
         }
 
-        [MethodImpl(INLINE)]
+        [MethodImpl(OPTIMIZE)]
         private bool ShouldRenderFace(Vector3i pos, BlockEntry data)
         {
             [MethodImpl(INLINE)]
