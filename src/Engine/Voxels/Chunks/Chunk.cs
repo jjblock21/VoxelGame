@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
+﻿using OpenTK.Mathematics;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework;
 using VoxelGame.Framework.Threading;
@@ -15,19 +14,23 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public volatile Mesh? Mesh;
 
         public volatile GenStageEnum GenStage; // Note: I don't actually think this needs to be volatile.
-        public volatile TaskState AsyncStage;
+
+        #region Async Stuff
+        public readonly TaskStateWrapper AsyncBuildState;
+        public readonly CancelTokenSrc BuilderCancelSrc;
+        #endregion
 
         public readonly Vector3i Location; // Position is stored twice, here and in the worlds dictionary, for ease of use.
         public readonly Vector3i Offset; // Location to be passed to the shader.
-
-        public readonly CancelTokenSrc BuilderCancelSrc;
 
         public Chunk(Vector3i location)
         {
             Location = location;
             Offset = location * 16;
             GenStage = GenStageEnum.NoData;
-            AsyncStage = TaskState.Inert;
+
+            // This is a mess.
+            AsyncBuildState = new TaskStateWrapper();
             BuilderCancelSrc = new CancelTokenSrc();
         }
 
@@ -41,6 +44,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             GenStage = GenStageEnum.Disposed;
             Mesh?.Free();
             Blocks = null; // Just in case
+
             BuilderCancelSrc.Dispose();
         }
 

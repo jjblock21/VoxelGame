@@ -1,7 +1,7 @@
-﻿using OpenTK.Mathematics;
-using System;
+﻿using System;
 using VoxelGame.Engine.Voxels.Chunks;
 using VoxelGame.Framework;
+using VoxelGame.Framework.Threading;
 
 namespace VoxelGame.Engine.Voxels
 {
@@ -44,7 +44,7 @@ namespace VoxelGame.Engine.Voxels
 
         public void Update()
         {
-            ChunkManager.Update();
+            RenderThreadCallback.Execute();
         }
 
         public void Free()

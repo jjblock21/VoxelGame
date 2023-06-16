@@ -1,14 +1,12 @@
 ﻿using OpenTK.Mathematics;
 using System.Collections.Concurrent;
 using VoxelGame.Engine.Voxels.Chunks.MeshGen;
-using VoxelGame.Framework.Helpers;
-using System;
 using VoxelGame.Engine.Voxels.Chunks.ChunkGen;
 using System.Runtime.CompilerServices;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game;
-using VoxelGame.Engine.Voxels.Block;
 using VoxelGame.Engine.Voxels.Helpers;
+using VoxelGame.Engine.Voxels.Blocks;
 
 namespace VoxelGame.Engine.Voxels.Chunks
 {
@@ -36,12 +34,6 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Chunks.Clear();
         }
 
-        public void Update()
-        {
-            Builder.Update();
-            LifetimeManager.Update();
-        }
-
         /// <returns><see langword="null"/> if the chunk is not loaded.</returns>
         public Chunk? GetChunk(Vector3i location)
         {
@@ -58,11 +50,11 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
             // If the block is on the border to other chunks, check if they are affected and rebuild them as well.
             if (z >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(0), x, y, 0);
-            if (z <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(2), x, y, 15);
+            else if (z <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(2), x, y, 15);
             if (x >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(1), 0, y, z);
-            if (x <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(3), 15, y, z);
+            else if (x <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(3), 15, y, z);
             if (y >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(4), x, 0, z);
-            if (y <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(5), x, 15, z);
+            else if (y <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(5), x, 15, z);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]

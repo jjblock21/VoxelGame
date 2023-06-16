@@ -2,13 +2,14 @@
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Engine.Voxels.Helpers;
-using VoxelGame.Game;
 
 namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 {
     public class ChunkGeneratorProvider
     {
+        // Collection of processors, one for each thread.
         private ThreadLocal<ChunkGenerator> _generator;
+
         private ChunkManager _chunkManager;
 
         public ChunkGeneratorProvider(ChunkManager chunkManager)
@@ -17,44 +18,33 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
             _generator = new ThreadLocal<ChunkGenerator>(() => new ChunkGenerator());
         }
 
-        /// <summary>
-        /// Generate a chunk asynchronously. (May be called from any thread)
-        /// </summary>
-        /// <param name="location"></param>
         public void GenChunk(Vector3i location)
         {
-            //TODO: Don't create the chunk object and then dispose of it again if the chunk already exists.
+            // First check here if the chunk already exists, but if the chunk object is still being created this wont work.
+            if (_chunkManager.Chunks.ContainsKey(location)) return;
 
-            // Create the empty chunk class and add it to the world...
+            // I chose to not do this in a task.
             Chunk chunk = new Chunk(location);
-            // ..if the chunk doesn't already exist
-            if (_chunkManager.Chunks.TryAdd(location, chunk))
-                Process(chunk);
 
-            // Print a debug message to the log as this should ideally be avoided.
-            else McWindow.Logger.Debug($"Chunk ({location.X},{location.Y},{location.Z}) already exists, canceling generator.");
+            if (_chunkManager.Chunks.TryAdd(location, chunk))
+                Task.Factory.StartNew(() => Process(chunk));
         }
 
         private void Process(Chunk chunk)
         {
-            Task.Factory.StartNew(() =>
-            {
-                _generator.Value!.Generate(chunk);
-
-                // Stage is marked as volatile.
-                chunk.GenStage = Chunk.GenStageEnum.HasData;
-                BuildNeighbours(chunk);
-            });
+            _generator.Value!.Generate(chunk);
+            chunk.GenStage = Chunk.GenStageEnum.HasData;
+            BuildNeighbours(chunk);
         }
 
         private void BuildNeighbours(Chunk chunk)
         {
-            // TODO: Long time task: Optimize this code to only do necessary checks.
             // Directions only go to 6 so 7 will just return (0,0,0) which will check the current chunk.
             for (uint dir = 0; dir < 7; dir++)
             {
                 // For every surrounding chunk, check the build stage of its neighbors.
                 Vector3i location = chunk!.Location + ConvertH.DirToVector(dir);
+                // Try to retrieve the chunk, if that fails, skip it.
                 if (!_chunkManager.Chunks.TryGetValue(location, out Chunk? toBuild)) continue;
 
                 /*
@@ -78,16 +68,17 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
             }
         }
 
-        /// <summary>
-        /// Checks if all surrounding chunks are "final".
-        /// </summary>
+        // Checks if all surrounding chunks are "final".
         private bool CheckNeighboursFinal(Vector3i location)
         {
             for (uint dir = 0; dir < 6; dir++)
             {
-                Vector3i l = location + ConvertH.DirToVector(dir);
-                if (_chunkManager.Chunks.TryGetValue(l, out Chunk? chunk) && chunk.GenStage == Chunk.GenStageEnum.NoData)
+                // If the chunk exists but doesn't have data return false.
+                if (_chunkManager.Chunks.TryGetValue(location + ConvertH.DirToVector(dir), out Chunk? chunk) &&
+                    chunk.GenStage == Chunk.GenStageEnum.NoData)
+                {
                     return false;
+                }
             }
             return true;
         }

@@ -1,136 +1,89 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework.Threading;
+using CancelTokenSrc = System.Threading.CancellationTokenSource;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {
-    // I know this is a bit of a mess and I'm not even sure its doing exactly what I want,
-    // but it works most of the time.
     public class ChunkBuilderProvider
     {
-        // Limit for how many chunks can be uploaded to the gpu in a single frame.
-        public const int MESH_UPLOAD_LIMIT = 8;
         // Limit for how many chunks can be build on the main thread in a single frame.
-        public const int SYNC_CHUNK_BUILD_LIMIT = 4;
+        public const float SYNC_BUILD_COMPUTE_COST = 0.25f;
+        public const float UPLOAD_COMPUTE_COST = 0.125f;
 
         // Collection of processors, one for each thread.
         private ThreadLocal<ChunkBuilder> _processor;
 
-        // Finished chunks processed on the thread pool.
-        private ConcurrentQueue<ChunkBuildResult> _processedChunks;
-
-        // Chunks waiting to be processed on the main thread.
-        private Queue<Chunk> _watingSyncChunks;
+        // Collection of chunks that need to be built on the main thread.
 
         public ChunkBuilderProvider()
         {
             _processor = new ThreadLocal<ChunkBuilder>(() => new ChunkBuilder());
-            _processedChunks = new ConcurrentQueue<ChunkBuildResult>();
-
-            _watingSyncChunks = new Queue<Chunk>();
         }
 
-        /// <summary>
-        /// Submit a chunk for having its mesh built on the thread pool.
-        /// </summary>
         /// <param name="dontDefer">
-        /// If set to <see langword="true"/>, no Task will be started and the chunk 
-        /// will be added to a Queue to be processed on the main thread instead.<br/>
-        /// If set to <see langword="true"/>, the method can only be called from the main thread!
+        /// If set to <see langword="true"/>, the chunk will be handed to the main thread to be processed synchronously,
+        /// the renderer will wait for the chunk to finish building its mesh.<br/>
+        /// If left on <see langword="false"/>, a task will be started to process the chunk asynchronously.
         /// </param>
         public void BuildChunk(Chunk chunk, bool dontDefer = false)
         {
             if (chunk.GenStage == Chunk.GenStageEnum.NoData) return;
 
-            // If the chunk should be processed on the main thread,
-            if (dontDefer && !_watingSyncChunks.Contains(chunk))
+            if (dontDefer)
             {
-                // Add it to a queue if it isn't added yet from processing later.
-                _watingSyncChunks.Enqueue(chunk);
-                return;
+                // Don't start a task, just hand it off to the main thread for processing there.
+                RenderThreadCallback.Schedule(RenderThreadCallback.Priority.SyncChunkBuild,
+                    SYNC_BUILD_COMPUTE_COST, () => ProcessSync(chunk));
             }
-
-            // Start the task and pass in a cancellation token from the chunks source.
-            // If another task has already been dispatched to work on the chunk, don't start another.
-            if (chunk.AsyncStage == TaskState.Dispatched) return;
-            chunk.AsyncStage = TaskState.Dispatched;
-
-            CancellationToken token = chunk.BuilderCancelSrc.Token;
-            Task.Factory.StartNew(() =>
+            else
             {
-                // If an async builder task is already running, cancel it and continue with the new data.
-                if (chunk.AsyncStage == TaskState.Running)
-                {
-                    // The already running task will be canceled, the current task wont 
-                    chunk.BuilderCancelSrc.Cancel();
-                }
-
-                chunk.AsyncStage = TaskState.Running;
-                ChunkBuildResult result = BuildChunkMain(chunk, token);
-                chunk.AsyncStage = TaskState.Inert;
-
-                _processedChunks.Enqueue(result);
-            }, token);
-        }
-
-        /// <summary>
-        /// Process waiting chunks to be processed synchronously or
-        /// update the mesh of a completed chunk.<br/>
-        /// ! Needs to be called from the OpenGL context thread !
-        /// </summary>
-        public void Update()
-        {
-            // If chunks are waiting to be processed synchronously, delay uploading the meshes of async chunks.
-            if (_watingSyncChunks.Count > 0)
-            {
-                for (int num = 0; num < SYNC_CHUNK_BUILD_LIMIT; num++)
-                {
-                    if (!_watingSyncChunks.TryDequeue(out Chunk? chunk)) break;
-
-                    // If a task is running or has been dispatched for building cancel it.
-                    if (chunk.AsyncStage != TaskState.Inert)
-                        chunk.BuilderCancelSrc.Cancel();
-
-                    // This doesn't cause any problems with another task begin dispatched while this is still running,
-                    // because this is running synchronously.
-                    chunk.AsyncStage = TaskState.Inert;
-                    UploadMesh(BuildChunkMain(chunk, CancellationToken.None));
-                }
-                return;
-            }
-
-            for (int num1 = 0; num1 < MESH_UPLOAD_LIMIT; num1++)
-            {
-                if (!_processedChunks.TryDequeue(out ChunkBuildResult result)) break;
-
-                // Update the mesh of a completed async chunk on the opengl context thread.
-                UploadMesh(result);
+                TaskHelper.StartNewCancelRunning(token => ProcessAsync(chunk, token),
+                    chunk.AsyncBuildState, chunk.BuilderCancelSrc);
             }
         }
 
-        private void UploadMesh(ChunkBuildResult result)
+        private void ProcessAsync(Chunk chunk, CancellationToken token)
         {
-            if (result.Chunk.Mesh == null)
-            {
-                // Create the mesh with a combined vertex array.
-                result.Chunk.Mesh = new Mesh(ChunkBuilder.BUFFER_STRIDE, BufferUsageHint.DynamicDraw);
-            }
+            BuildResult result = _processor.Value!.Process(chunk, token);
+
+            // Schedule a callback on the render thread, where the chunks data is uploaded.
+            RenderThreadCallback.Schedule(RenderThreadCallback.Priority.Common,
+                UPLOAD_COMPUTE_COST, () => UploadMesh(chunk, result));
+        }
+
+        private void ProcessSync(Chunk chunk)
+        {
+            // If a task is running or has been dispatched for building cancel it.
+            if (chunk.AsyncBuildState.Value != TaskState.Inert)
+                chunk.BuilderCancelSrc.Cancel();
+
+            // This doesn't cause any problems with another task begin dispatched while this is still running,
+            // because this is running synchronously.
+            chunk.AsyncBuildState.Value = TaskState.Inert;
+
+            BuildResult result = _processor.Value!.Process(chunk, CancellationToken.None);
+            UploadMesh(chunk, result);
+        }
+
+        private void UploadMesh(Chunk chunk, BuildResult result)
+        {
+            // Create the mesh if the chunk doesn't have one yet.
+            chunk.Mesh ??= new Mesh(ChunkBuilder.BUFFER_STRIDE, BufferUsageHint.DynamicDraw);
 
             // Update the vertex and index buffers.
-            result.Chunk.Mesh!.SetData(result.VertexData!, result.IndexData!);
+            chunk.Mesh!.SetData(result.VertexData!, result.IndexData!);
             result.VertexData = null;
             result.IndexData = null;
+
+            chunk.GenStage = Chunk.GenStageEnum.HasMesh;
         }
 
-        private ChunkBuildResult BuildChunkMain(Chunk chunk, CancellationToken token)
+        public struct BuildResult
         {
-            ChunkBuildResult result = _processor.Value!.Process(chunk, token);
-            chunk.GenStage = Chunk.GenStageEnum.HasMesh;
-            return result;
+            public float[]? VertexData;
+            public uint[]? IndexData;
         }
     }
 }

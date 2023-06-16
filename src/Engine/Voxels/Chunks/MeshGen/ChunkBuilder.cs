@@ -1,8 +1,9 @@
 ﻿using OpenTK.Mathematics;
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using VoxelGame.Engine.Voxels.Block;
+using VoxelGame.Engine.Voxels.Blocks;
 using VoxelGame.Engine.Voxels.Helpers;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
@@ -25,8 +26,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
         private uint _totalVertices;
 
         /// <summary>
-        /// If set to <see langword="true"/>, faces will be generated on the edges of chunks without a corresponding neighbour.<br/>
-        /// (Should only be used for debugging purposes)
+        /// If set to <see langword="true"/>, faces will be generated on the edges of chunks without a corresponding neighbor.
         /// </summary>
         private const bool SOLID_WORLD_EDGE = true;
 
@@ -38,40 +38,38 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             _totalVertices = 0;
         }
 
-        public ChunkBuildResult Process(Chunk target, CancellationToken token)
+        public ChunkBuilderProvider.BuildResult Process(Chunk target, CancellationToken token)
         {
             _target = target;
             _totalVertices = 0;
-
-            // Loop over all 6 directions and find neighbour chunks.
-            for (uint dir = 0; dir < 6; dir++)
-            {
-                token.ThrowIfCancellationRequested();
-
-                Vector3i location = target.Location + ConvertH.DirToVector(dir);
-                Chunk? chunk = Minecraft.Instance.Session.ChunkManager.GetChunk(location);
-
-                // If a chunk exists but doesn't have data yet dont add it to the array.
-                if (chunk != null && chunk.GenStage == Chunk.GenStageEnum.NoData)
-                {
-                    // Always make sure to set this to null if the neighbour is invalid, otherwise it will create weird results.
-                    _neighbours[dir] = null;
-                }
-                else _neighbours[dir] = chunk;
-            }
-
-            var result = new ChunkBuildResult();
             try
             {
+                // Loop over all 6 directions and find neighbor chunks.
+                for (uint dir = 0; dir < 6; dir++)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    Vector3i location = target.Location + ConvertH.DirToVector(dir);
+                    Chunk? chunk = Minecraft.Instance.Session.ChunkManager.GetChunk(location);
+
+                    // If a chunk exists but doesn't have data yet don't add it to the array.
+                    if (chunk != null && chunk.GenStage == Chunk.GenStageEnum.NoData)
+                    {
+                        // Always make sure to set this to null if the neighbor is invalid, otherwise it will create weird results.
+                        _neighbours[dir] = null;
+                    }
+                    else _neighbours[dir] = chunk;
+                }
+
                 InternalBuildMesh(token);
 
                 // Output result struct.
-                result.Chunk = target;
-
+                var result = new ChunkBuilderProvider.BuildResult();
                 token.ThrowIfCancellationRequested();
                 result.VertexData = _vertices.ToArray();
                 token.ThrowIfCancellationRequested();
                 result.IndexData = _indices.ToArray();
+                return result;
             }
             finally
             {
@@ -79,14 +77,12 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                 _vertices.Clear();
                 _indices.Clear();
             }
-
-            return result;
         }
 
         [MethodImpl(OPTIMIZE)]
         private void InternalBuildMesh(CancellationToken token)
         {
-            // Loop over all blocks, check their neighbours in all directions and build a face if they border an air block.
+            // Loop over all blocks, check their neighbors in all directions and build a face if they border an air block.
             for (int x = 0; x < 16; x++)
             {
                 for (int y = 0; y < 16; y++)

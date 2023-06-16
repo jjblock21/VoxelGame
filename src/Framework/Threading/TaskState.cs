@@ -15,4 +15,17 @@
         /// </summary>
         Running
     }
+
+    /// <summary>
+    /// Wraps <see cref="TaskState"/> in a class so it can be passed to lambda expressions by reference.
+    /// </summary>
+    public class TaskStateWrapper
+    {
+        public volatile TaskState Value;
+
+        public TaskStateWrapper()
+        {
+            Value = TaskState.Inert;
+        }
+    }
 }

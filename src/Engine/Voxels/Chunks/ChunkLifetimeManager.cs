@@ -1,9 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using VoxelGame.Framework.Helpers;
 using VoxelGame.Framework.Threading;
 using VoxelGame.Game;
@@ -28,122 +26,79 @@ namespace VoxelGame.Engine.Voxels.Chunks
         //TODO: Comment this accordingly
 
         // Max amount of chunks that will be deleted synchronously each frame.
-        private const int CHUNK_DELETEION_LIMIT = 4;
+        private const float DELETE_CHUNK_COMPUTE_COST = 0.2f;
 
         // Are cancellation tokens necessary here?
         private CancellationTokenSource _createNewCancelSrc;
         private CancellationTokenSource _deleteOldCancelSrc;
-        private volatile TaskState _createNewState = TaskState.Inert;
-        private volatile TaskState _deleteOldState = TaskState.Inert;
-        private ConcurrentQueue<Chunk> _chunksToDelete;
+        private TaskStateWrapper _createNewState;
+        private TaskStateWrapper _deleteOldState;
 
         private ChunkManager _chunkManager;
 
         public ChunkLifetimeManager(ChunkManager chunkManager)
         {
             _chunkManager = chunkManager;
+
             _createNewCancelSrc = new CancellationTokenSource();
             _deleteOldCancelSrc = new CancellationTokenSource();
-            _chunksToDelete = new ConcurrentQueue<Chunk>();
+            _createNewState = new TaskStateWrapper();
+            _deleteOldState = new TaskStateWrapper();
         }
 
         public void MoveCenterChunk(Vector3i center)
         {
-            CreateNewChunks(center);
-            DeleteOldChunks(center);
+            TaskHelper.StartNewCancelRunning(token => CreateNewChunksTask(center, token),
+                _createNewState, _createNewCancelSrc);
+
+            TaskHelper.StartNewCancelRunning(token => DeleteOldChunksTask(center, token),
+                _deleteOldState, _deleteOldCancelSrc);
         }
-
-        // Note: These two methods are basically the same, maybe in the future I can make an abstraction for it.
-        #region Start Methods
-        private void CreateNewChunks(Vector3i center)
-        {
-            // If another task hasn't started yet, just exit.
-            if (_createNewState == TaskState.Dispatched) return;
-            // If another task is running cancel it.
-            if (_createNewState == TaskState.Running)
-                _createNewCancelSrc.Cancel();
-
-            // Start the task and mark it as dispatched.
-            _createNewState = TaskState.Dispatched;
-            CancellationToken token = _createNewCancelSrc.Token;
-            Task.Factory.StartNew(() =>
-            {
-                CreateNewChunksTask(center, token);
-            }, token);
-        }
-
-        private void DeleteOldChunks(Vector3i center)
-        {
-            // If another task hasn't started yet, just exit.
-            if (_deleteOldState == TaskState.Dispatched) return;
-            // If another task is running cancel it.
-            if (_deleteOldState == TaskState.Running)
-                _deleteOldCancelSrc.Cancel();
-
-            // Start the task and mark it as dispatched.
-            _deleteOldState = TaskState.Dispatched;
-            CancellationToken token = _deleteOldCancelSrc.Token;
-            Task.Factory.StartNew(() =>
-            {
-                DeleteOldChunksTask(center, token);
-            }, token);
-        }
-        #endregion
 
         private void CreateNewChunksTask(Vector3i center, CancellationToken token)
         {
-            _createNewState = TaskState.Running;
-            try
+            ForCubeWithSizeOfRenderDistance(vec =>
             {
-                ForCubeWithSizeOfRenderDistance(vec =>
-                {
-                    token.ThrowIfCancellationRequested();
-                    if (CheckCylinder(vec))
-                        _chunkManager.Generator.GenChunk(center + vec);
-                });
-            }
-            finally
-            {
-                _createNewState = TaskState.Inert;
-            }
+                token.ThrowIfCancellationRequested();
+                if (CheckCylinder(vec))
+                    _chunkManager.Generator.GenChunk(center + vec);
+            });
         }
 
         private void DeleteOldChunksTask(Vector3i center, CancellationToken token)
         {
-            _deleteOldState = TaskState.Running;
-            try
+            token.ThrowIfCancellationRequested();
+
+            // Note: This is really slow, so I'm using tasks so the renderer can continue while this is working.
+            List<Chunk> toDelete = new List<Chunk>();
+
+            // Loop trough all chunks in the world and find the ones outside of render distance.
+            foreach (Chunk chunk in _chunkManager.Chunks.Values)
             {
                 token.ThrowIfCancellationRequested();
-                List<Chunk> toDelete = new List<Chunk>();
-
-                // Note: This is really slow, so I'm using tasks so the renderer can continue while this is working.
-                foreach (Chunk chunk in _chunkManager.Chunks.Values)
-                {
-                    token.ThrowIfCancellationRequested();
-                    if (!CheckCylinder(chunk.Location - center))
-                        toDelete.Add(chunk);
-                }
-
-                // We can already remove them from the world.
-                foreach (Chunk chunk in toDelete)
-                {
-                    // I decided not to allow cancellation after here anymore.
-                    if (!_chunkManager.Chunks.TryRemove(chunk.Location, out Chunk _))
-                        McWindow.Logger.Warn("Removing chunk from collection failed, this is most likely bad");
-
-                    _chunksToDelete.Enqueue(chunk);
-                }
+                if (!CheckCylinder(chunk.Location - center))
+                    toDelete.Add(chunk);
             }
-            finally
+
+            // Delete those chunks.
+            foreach (Chunk chunk in toDelete)
             {
-                _deleteOldState = TaskState.Inert;
+                token.ThrowIfCancellationRequested();
+
+                // Remove the chunk from the dictionary asynchronously.
+                if (!_chunkManager.Chunks.TryRemove(chunk.Location, out Chunk _))
+                    McWindow.Logger.Warn("Removing chunk from collection failed, this is most likely bad");
+
+                // Schedule a call on the main thread to chunk.Free() to delete OpenGL buffers.
+                RenderThreadCallback.Schedule(RenderThreadCallback.Priority.Common,
+                    DELETE_CHUNK_COMPUTE_COST, chunk.Free);
             }
         }
 
         private void ForCubeWithSizeOfRenderDistance(Action<Vector3i> callback)
         {
-            VectorUtility.Vec3For(-Session.RENDER_DIST, -Session.RENDER_DIST / 2, -Session.RENDER_DIST,
-                Session.RENDER_DIST, Session.RENDER_DIST / 2, Session.RENDER_DIST, callback);
+            const int radius = Session.RENDER_DIST;
+            VectorUtility.Vec3For(-radius, -radius / 2, -radius, radius, radius / 2, radius, callback);
         }
 
         /// <summary>
@@ -153,15 +108,6 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             if (vec.Y < (-Session.RENDER_DIST / 2) || vec.Y > (Session.RENDER_DIST / 2)) return false;
             return (vec.X * vec.X + vec.Z * vec.Z) < (Session.RENDER_DIST * Session.RENDER_DIST);
-        }
-
-        public void Update()
-        {
-            for (int i = 0; i < CHUNK_DELETEION_LIMIT; i++)
-            {
-                if (!_chunksToDelete.TryDequeue(out Chunk? chunk)) return;
-                chunk.Free();
-            }
         }
 
         public void Dispose()
