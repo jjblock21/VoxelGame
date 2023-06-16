@@ -12,6 +12,7 @@ using VoxelGame.Game.Blocks;
 using VoxelGame.Game.Blocks.Models;
 using VoxelGame.Engine.Voxels.Helpers;
 using VoxelGame.Engine.Voxels.Blocks;
+using System.Threading;
 
 namespace VoxelGame.Game
 {
@@ -107,6 +108,9 @@ namespace VoxelGame.Game
         // Initialization which requires GL commands.
         public void Init()
         {
+            // Set the render thread priority to the highest.
+            Thread.CurrentThread.Priority = ThreadPriority.Highest;
+
             ErrorHandler.Section("Init OpenGL");
 
             GL.Enable(EnableCap.DepthTest);
