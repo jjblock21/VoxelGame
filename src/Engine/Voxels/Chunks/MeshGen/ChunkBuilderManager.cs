@@ -6,7 +6,7 @@ using CancelTokenSrc = System.Threading.CancellationTokenSource;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {
-    public class ChunkBuilderProvider
+    public class ChunkBuilderManager
     {
         // Limit for how many chunks can be build on the main thread in a single frame.
         public const float SYNC_BUILD_COMPUTE_COST = 0.25f;
@@ -17,7 +17,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
         // Collection of chunks that need to be built on the main thread.
 
-        public ChunkBuilderProvider()
+        public ChunkBuilderManager()
         {
             _processor = new ThreadLocal<ChunkBuilder>(() => new ChunkBuilder());
         }

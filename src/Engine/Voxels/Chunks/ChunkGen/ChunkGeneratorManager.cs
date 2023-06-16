@@ -5,14 +5,14 @@ using VoxelGame.Engine.Voxels.Helpers;
 
 namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 {
-    public class ChunkGeneratorProvider
+    public class ChunkGeneratorManager
     {
         // Collection of processors, one for each thread.
         private ThreadLocal<ChunkGenerator> _generator;
 
         private ChunkManager _chunkManager;
 
-        public ChunkGeneratorProvider(ChunkManager chunkManager)
+        public ChunkGeneratorManager(ChunkManager chunkManager)
         {
             _chunkManager = chunkManager;
             _generator = new ThreadLocal<ChunkGenerator>(() => new ChunkGenerator());

@@ -33,7 +33,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             _totalVertices = 0;
         }
 
-        public ChunkBuilderProvider.BuildResult Process(Chunk target, CancellationToken token)
+        public ChunkBuilderManager.BuildResult Process(Chunk target, CancellationToken token)
         {
             _target = target;
             _totalVertices = 0;
@@ -58,7 +58,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 InternalBuildMesh(token);
 
-                var result = new ChunkBuilderProvider.BuildResult();
+                var result = new ChunkBuilderManager.BuildResult();
                 token.ThrowIfCancellationRequested();
                 result.VertexData = _vertices.ToArray();
                 token.ThrowIfCancellationRequested();
