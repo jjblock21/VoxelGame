@@ -90,7 +90,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
                     McWindow.Logger.Warn("Removing chunk from collection failed, this is most likely bad");
 
                 // Schedule a call on the main thread to chunk.Free() to delete OpenGL buffers.
-                RenderThreadCallback.Schedule(RenderThreadCallback.Priority.Common,
+                RenderThreadCallback.Schedule(RenderThreadCallback.Priority.DeleteMesh,
                     DELETE_CHUNK_COMPUTE_COST, chunk.Free);
             }
         }

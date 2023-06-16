@@ -14,12 +14,16 @@ namespace VoxelGame.Framework.Helpers
             return r < 0f ? r + m : r;
         }
 
-        public static float Clamp01(float value) => MathHelper.Clamp(value, 0, 1);
+        [MethodImpl(INLINE)]
+        public static float Clamp01(float value) =>
+            MathHelper.Clamp(value, 0, 1);
 
         [MethodImpl(INLINE)]
-        public static float ToRad(float degrees) => MathHelper.DegreesToRadians(degrees);
+        public static float ToRad(float degrees) =>
+            MathHelper.DegreesToRadians(degrees);
 
         [MethodImpl(INLINE)]
-        public static float ToDeg(float radians) => MathHelper.RadiansToDegrees(radians);
+        public static float ToDeg(float radians) =>
+            MathHelper.RadiansToDegrees(radians);
     }
 }

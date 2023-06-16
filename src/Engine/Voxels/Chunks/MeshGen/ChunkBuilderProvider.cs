@@ -49,7 +49,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             BuildResult result = _processor.Value!.Process(chunk, token);
 
             // Schedule a callback on the render thread, where the chunks data is uploaded.
-            RenderThreadCallback.Schedule(RenderThreadCallback.Priority.Common,
+            RenderThreadCallback.Schedule(RenderThreadCallback.Priority.UploadMesh,
                 UPLOAD_COMPUTE_COST, () => UploadMesh(chunk, result));
         }
 

@@ -59,16 +59,31 @@ namespace VoxelGame.Framework.Threading
             }
         }
 
-        public const int PRIORITY_ENUM_VALUE_COUNT = 2;
+        public const int PRIORITY_ENUM_VALUE_COUNT = 4;
 
-        // ! DONT ASSIGN VALUS TO THESE.
+        // (!) DONT ASSIGN VALUS TO THESE.
         /// <summary>
         /// Lists the priorities of callbacks to the main thread in descending order from highest to lowest priority.<br/>
         /// The <see cref="RenderThreadCallback"/> code is build to allow for addition of priorities easily.
         /// </summary>
         public enum Priority
         {
+            /// <summary>
+            /// (Highest) Used for chunk rebuilds on the render thread.
+            /// </summary>
             SyncChunkBuild,
+            /// <summary>
+            /// Used for uploading meshes to the GPU.
+            /// </summary>
+            UploadMesh,
+            /// <summary>
+            /// Used for deleting meshes on the GPU.
+            /// </summary>
+            DeleteMesh,
+
+            /// <summary>
+            /// (Lowest) Used for everything that isn't too important.
+            /// </summary>
             Common
         }
     }
