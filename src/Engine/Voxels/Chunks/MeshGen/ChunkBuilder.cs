@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using VoxelGame.Engine.Voxels.Blocks;
 using VoxelGame.Engine.Voxels.Helpers;
+using VoxelGame.Framework.Helpers;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
@@ -58,7 +59,6 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 InternalBuildMesh(token);
 
-                // Output result struct.
                 var result = new ChunkBuilderProvider.BuildResult();
                 token.ThrowIfCancellationRequested();
                 result.VertexData = _vertices.ToArray();
@@ -78,54 +78,47 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
         private void InternalBuildMesh(CancellationToken token)
         {
             // Loop over all blocks, check their neighbors in all directions and build a face if they border an air block.
-            for (int x = 0; x < 16; x++)
+            VectorUtility.Vec3For(0, 0, 0, 16, 16, 16, i =>
             {
-                for (int y = 0; y < 16; y++)
+                token.ThrowIfCancellationRequested();
+
+                // _target.Blocks will only be null if this is called in the wrong stage.
+                // If this happens I fucked up big somewhere.
+                if (_target!.Blocks![i.X, i.Y, i.Z] == BlockType.Air) return; // Return is basically continue when using Vec3For
+
+                BlockEntry data = Minecraft.Instance.BlockRegistry[_target.Blocks[i.X, i.Y, i.Z]];
+                Vector3i index = new Vector3i(i.X, i.Y, i.Z);
+
+                // If the block should not be culled against other blocks, generate all faces and exit.
+                if ((data.Params & BlockParams.DontCull) != 0)
                 {
-                    for (int z = 0; z < 16; z++)
+                    if (data.Model.BuildMesh(index, ref _totalVertices, out float[]? verts, out uint[]? ind))
                     {
-                        token.ThrowIfCancellationRequested();
+                        _vertices.AddRange(verts!);
+                        _indices.AddRange(ind!);
+                    }
+                    return;
+                }
 
-                        // _target.Blocks will only be null if this is called in the wrong stage.
-                        // If this happens I fucked up big somewhere.
-                        if (_target!.Blocks![x, y, z] == BlockType.Air) continue;
-
-                        BlockEntry data = Minecraft.Instance.BlockRegistry[_target.Blocks[x, y, z]];
-                        Vector3i index = new Vector3i(x, y, z);
-
-                        // If the block should not be culled against other blocks, generate all faces and exit.
-                        if ((data.Params & BlockParams.DontCull) != 0)
+                // If it needs to be culled against other blocks, loop over all directions and
+                // check if the block next to that face is solid.
+                // If yes build that face.
+                for (uint dir = 0; dir < 6; dir++)
+                {
+                    if (ShouldRenderFace(i + ConvertH.DirToVector(dir), data))
+                    {
+                        if (data.Model.BuildFace(dir, index, ref _totalVertices, out float[]? verts, out uint[]? ind))
                         {
-                            if (data.Model.BuildMesh(index, ref _totalVertices, out float[]? verts, out uint[]? ind))
-                            {
-                                _vertices.AddRange(verts!);
-                                _indices.AddRange(ind!);
-                            }
-                            return;
-                        }
-
-                        // If it needs to be culled against other blocks, loop over all directions and
-                        // check if the block next to that face is solid.
-                        // If yes build that face.
-                        for (uint dir = 0; dir < 6; dir++)
-                        {
-                            Vector3i d = ConvertH.DirToVector(dir);
-                            if (ShouldRenderFace(x + d.X, y + d.Y, z + d.Z, data))
-                            {
-                                if (data.Model.BuildFace(dir, index, ref _totalVertices, out float[]? verts, out uint[]? ind))
-                                {
-                                    _vertices.AddRange(verts!);
-                                    _indices.AddRange(ind!);
-                                }
-                            }
+                            _vertices.AddRange(verts!);
+                            _indices.AddRange(ind!);
                         }
                     }
                 }
-            }
+            });
         }
 
         [MethodImpl(INLINE)]
-        private bool ShouldRenderFace(int x, int y, int z, BlockEntry data)
+        private bool ShouldRenderFace(Vector3i pos, BlockEntry data)
         {
             [MethodImpl(INLINE)]
             bool isTransparent(int i, int bx, int by, int bz)
@@ -138,16 +131,16 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             // We expect to only have to check bordering blocks to the chunk, so the positions to check are hard coded.
 
             #pragma warning disable format // For some nice formatting
-            if (z > 15) return _neighbours[0] == null ? false : isTransparent(0,  x,  y,  0);
-            if (x > 15) return _neighbours[1] == null ? false : isTransparent(1,  0,  y,  z);
-            if (z < 0)  return _neighbours[2] == null ? false : isTransparent(2,  x,  y, 15);
-            if (x < 0)  return _neighbours[3] == null ? false : isTransparent(3, 15,  y,  z);
-            if (y > 15) return _neighbours[4] == null ? false : isTransparent(4,  x,  0,  z);
-            if (y < 0)  return _neighbours[5] == null ? false : isTransparent(5,  x, 15,  z);
+            if (pos.Z > 15) return _neighbours[0] == null ? false : isTransparent(0,  pos.X, pos.Y,     0);
+            if (pos.X > 15) return _neighbours[1] == null ? false : isTransparent(1,      0, pos.Y, pos.Z);
+            if (pos.Z < 0)  return _neighbours[2] == null ? false : isTransparent(2,  pos.X, pos.Y,    15);
+            if (pos.X < 0)  return _neighbours[3] == null ? false : isTransparent(3,     15, pos.Y, pos.Z);
+            if (pos.Y > 15) return _neighbours[4] == null ? false : isTransparent(4,  pos.X,     0, pos.Z);
+            if (pos.Y < 0)  return _neighbours[5] == null ? false : isTransparent(5,  pos.X,    15, pos.Z);
             #pragma warning restore format
 
             // If the block is inside the chunk, check if it is an air block.
-            return _target!.Blocks![x, y, z] == BlockType.Air;
+            return _target!.Blocks![pos.X, pos.Y, pos.Z] == BlockType.Air;
         }
     }
 }
