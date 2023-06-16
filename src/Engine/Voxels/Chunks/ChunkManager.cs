@@ -27,6 +27,10 @@ namespace VoxelGame.Engine.Voxels.Chunks
             LifetimeManager = new ChunkLifetimeManager(this);
         }
 
+        /* Note: There should also be a chunk deletion manager to rebuild surrounding chunks when a chunk is deleted,
+         * but that shouldn't cause any big problems with SOLID_WORLD_BORDER disabled.
+         */
+
         public void ClearChunks()
         {
             foreach (Chunk chunk in Chunks.Values)
@@ -49,12 +53,15 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Builder.BuildChunk(chunk, dontDefer: true);
 
             // If the block is on the border to other chunks, check if they are affected and rebuild them as well.
-            if (z >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(0), x, y, 0);
-            else if (z <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(2), x, y, 15);
-            if (x >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(1), 0, y, z);
-            else if (x <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(3), 15, y, z);
-            if (y >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(4), x, 0, z);
-            else if (y <= 0) RebuildNeighbourBlock(location + ConvertH.DirToVector(5), x, 15, z);
+
+            #pragma warning disable format // For more readability
+            if      (z >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(0),  x,  y,  0);
+            else if (z <= 0)  RebuildNeighbourBlock(location + ConvertH.DirToVector(2),  x,  y, 15);
+            if      (x >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(1),  0,  y,  z);
+            else if (x <= 0)  RebuildNeighbourBlock(location + ConvertH.DirToVector(3), 15,  y,  z);
+            if      (y >= 15) RebuildNeighbourBlock(location + ConvertH.DirToVector(4),  x,  0,  z);
+            else if (y <= 0)  RebuildNeighbourBlock(location + ConvertH.DirToVector(5),  x, 15,  z);
+            #pragma warning restore format
         }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]

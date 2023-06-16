@@ -3,7 +3,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using VoxelGame.Engine;
-using VoxelGame.Framework.Helpers;
 using VoxelGame.Engine.Voxels;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Engine.Rendering.Text;

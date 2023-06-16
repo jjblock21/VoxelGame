@@ -141,12 +141,15 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
             // Check if position is outside of chunk and check neighbor.
             // We expect to only have to check bordering blocks to the chunk, so the positions to check are hard coded.
-            if (z > 15) return _neighbours[0] == null ? SOLID_WORLD_EDGE : isTransparent(0, x, y, 0);
-            if (x > 15) return _neighbours[1] == null ? SOLID_WORLD_EDGE : isTransparent(1, 0, y, z);
-            if (z < 0) return _neighbours[2] == null ? SOLID_WORLD_EDGE : isTransparent(2, x, y, 15);
-            if (x < 0) return _neighbours[3] == null ? SOLID_WORLD_EDGE : isTransparent(3, 15, y, z);
-            if (y > 15) return _neighbours[4] == null ? SOLID_WORLD_EDGE : isTransparent(4, x, 0, z);
-            if (y < 0) return _neighbours[5] == null ? SOLID_WORLD_EDGE : isTransparent(5, x, 15, z);
+
+            #pragma warning disable format // For some nice formatting
+            if (z > 15) return _neighbours[0] == null ? SOLID_WORLD_EDGE : isTransparent(0,  x,  y,  0);
+            if (x > 15) return _neighbours[1] == null ? SOLID_WORLD_EDGE : isTransparent(1,  0,  y,  z);
+            if (z < 0)  return _neighbours[2] == null ? SOLID_WORLD_EDGE : isTransparent(2,  x,  y, 15);
+            if (x < 0)  return _neighbours[3] == null ? SOLID_WORLD_EDGE : isTransparent(3, 15,  y,  z);
+            if (y > 15) return _neighbours[4] == null ? SOLID_WORLD_EDGE : isTransparent(4,  x,  0,  z);
+            if (y < 0)  return _neighbours[5] == null ? SOLID_WORLD_EDGE : isTransparent(5,  x, 15,  z);
+            #pragma warning restore format
 
             // If the block is inside the chunk, check if it is an air block.
             return _target!.Blocks![x, y, z] == BlockType.Air;
