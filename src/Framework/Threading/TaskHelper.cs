@@ -31,6 +31,7 @@ namespace VoxelGame.Framework.Threading
                 {
                     action(token);
                 }
+                catch { } // Ignore any exceptions.
                 finally
                 {
                     state.Value = TaskState.Inert;
@@ -58,6 +59,7 @@ namespace VoxelGame.Framework.Threading
                 {
                     action();
                 }
+                catch { } // Ignore any exceptions.
                 finally
                 {
                     state.Value = TaskState.Inert;
