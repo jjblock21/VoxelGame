@@ -25,11 +25,6 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
         private uint _totalVertices;
 
-        /// <summary>
-        /// If set to <see langword="true"/>, faces will be generated on the edges of chunks without a corresponding neighbor.
-        /// </summary>
-        private const bool SOLID_WORLD_EDGE = true;
-
         public ChunkBuilder()
         {
             _neighbours = new Chunk[6];
@@ -143,12 +138,12 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
             // We expect to only have to check bordering blocks to the chunk, so the positions to check are hard coded.
 
             #pragma warning disable format // For some nice formatting
-            if (z > 15) return _neighbours[0] == null ? SOLID_WORLD_EDGE : isTransparent(0,  x,  y,  0);
-            if (x > 15) return _neighbours[1] == null ? SOLID_WORLD_EDGE : isTransparent(1,  0,  y,  z);
-            if (z < 0)  return _neighbours[2] == null ? SOLID_WORLD_EDGE : isTransparent(2,  x,  y, 15);
-            if (x < 0)  return _neighbours[3] == null ? SOLID_WORLD_EDGE : isTransparent(3, 15,  y,  z);
-            if (y > 15) return _neighbours[4] == null ? SOLID_WORLD_EDGE : isTransparent(4,  x,  0,  z);
-            if (y < 0)  return _neighbours[5] == null ? SOLID_WORLD_EDGE : isTransparent(5,  x, 15,  z);
+            if (z > 15) return _neighbours[0] == null ? false : isTransparent(0,  x,  y,  0);
+            if (x > 15) return _neighbours[1] == null ? false : isTransparent(1,  0,  y,  z);
+            if (z < 0)  return _neighbours[2] == null ? false : isTransparent(2,  x,  y, 15);
+            if (x < 0)  return _neighbours[3] == null ? false : isTransparent(3, 15,  y,  z);
+            if (y > 15) return _neighbours[4] == null ? false : isTransparent(4,  x,  0,  z);
+            if (y < 0)  return _neighbours[5] == null ? false : isTransparent(5,  x, 15,  z);
             #pragma warning restore format
 
             // If the block is inside the chunk, check if it is an air block.

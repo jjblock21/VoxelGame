@@ -23,7 +23,9 @@ namespace VoxelGame.Game
         // In half a deg per second per mouse unit.
         public const float SENSITIVITY = 0.4f;
         private const float TURNSPEED = SENSITIVITY / 720 * MathF.PI;
+
         private const float SPEED = 5f;
+        private const float SPRINT_MULTIPLIER = 3f;
 
         public SpectatorCamera(Vector2i viewport, float fov, Vector3 translation, float yaw, float pitch) :
             base(viewport, fov, BuildTranformMatrix(pitch, yaw, translation))
@@ -56,7 +58,7 @@ namespace VoxelGame.Game
             input.NormalizeFast();
 
             // Shift key makes the camera fly faster.
-            if (Input.IsKeyPressed(Keys.LeftShift)) input *= 3;
+            if (Input.IsKeyPressed(Keys.LeftShift)) input *= SPRINT_MULTIPLIER;
 
             input *= SPEED * (float)deltaTime;
             Translation += input;
@@ -64,8 +66,8 @@ namespace VoxelGame.Game
             // Looking around with the mouse.
             // TODO: Are pitch and yaw inverted here?
             float yawDelta = Input.MouseDelta.X * TURNSPEED;
-            float pitchDelta = Input.MouseDelta.Y * TURNSPEED;
             Yaw = MathHelper.NormalizeRadians(Yaw - yawDelta);
+            float pitchDelta = Input.MouseDelta.Y * TURNSPEED;
             Pitch = MathHelper.Clamp(Pitch + pitchDelta, MIN_PITCH, MAX_PITCH);
 
             _transformMatrix = BuildTranformMatrix(Pitch, Yaw, Translation);
