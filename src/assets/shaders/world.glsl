@@ -28,6 +28,6 @@ out vec4 pixelColor;
 uniform sampler2D texture0;
 
 void main() {
-    pixelColor = texture2D(texture0, vTexCoord);
+    pixelColor = texture(texture0, vTexCoord);
     pixelColor.xyz *= vBrightness;
 }
