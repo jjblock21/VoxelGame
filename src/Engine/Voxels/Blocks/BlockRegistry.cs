@@ -1,7 +1,7 @@
 ﻿using System;
 using VoxelGame.Game.Blocks;
 
-namespace VoxelGame.Engine.Voxels.Block
+namespace VoxelGame.Engine.Voxels.Blocks
 {
     public class BlockRegistry
     {

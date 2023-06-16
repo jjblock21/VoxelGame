@@ -27,9 +27,9 @@ namespace VoxelGame.Engine.Rendering.Text
         {
             // Validate inputs.
             if (texture.Width % glyphWidth != 0 || texture.Height % glyphHeight != 0)
-                throw new ArgumentException("Texture dimenstions must be divisible by glyph dimensions.");
+                throw new ArgumentException("Texture dimensions must be divisible by glyph dimensions.");
             if (texture.Width * texture.Height / (glyphWidth * glyphHeight) < 126 - 32)
-                throw new ArgumentException("Texture must contain UTF-16 glyph 32 - glyph 126");
+                throw new ArgumentException("Texture must contain UTF-16 glyph 32 - 126");
 
             Texture = texture;
             GlyphAspect = (float)glyphHeight / glyphWidth;

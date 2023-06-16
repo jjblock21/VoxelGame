@@ -10,8 +10,8 @@ using VoxelGame.Engine.Rendering.Text;
 using VoxelGame.Framework;
 using VoxelGame.Game.Blocks;
 using VoxelGame.Game.Blocks.Models;
-using VoxelGame.Engine.Voxels.Block;
 using VoxelGame.Engine.Voxels.Helpers;
+using VoxelGame.Engine.Voxels.Blocks;
 
 namespace VoxelGame.Game
 {
@@ -157,15 +157,6 @@ namespace VoxelGame.Game
 
             _session.CreateWorld(chunkManager =>
             {
-                /*// Generate cylinder of chunks.
-                const int radius = 8;
-                const int height = 4;
-                const int radiusSquared = radius * radius;
-                VectorUtility.Vec3For(-radius, -height, -radius, radius, height, radius, vec =>
-                {
-                    int ldist = vec.X * vec.X + vec.Z * vec.Z;
-                    if (ldist < radiusSquared) chunkManager.Generator.GenChunk(vec);
-                });*/
                 chunkManager.LifetimeManager.MoveCenterChunk(Vector3i.Zero);
             });
 
@@ -224,7 +215,6 @@ namespace VoxelGame.Game
             SpriteBatch.Quad(0, Window.Size.Y - 46, Window.Size.X / 2, 46, color: new Argb(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
-
             TextRenderer!.Begin();
 
             TextRenderer.DrawText(5, Window.Size.Y - 20, $"Fps:{Window.FrameRate}", 10);
