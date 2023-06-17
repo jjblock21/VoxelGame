@@ -14,16 +14,18 @@ namespace VoxelGame.Engine.Voxels.Chunks
     {
         public readonly ConcurrentDictionary<Vector3i, Chunk> Chunks;
 
-        public readonly ChunkBuilderProvider Builder;
-        public readonly ChunkGeneratorProvider Generator;
+        public readonly ChunkBuilderManager Builder;
+        public readonly ChunkGeneratorManager Generator;
         public readonly ChunkLifetimeManager LifetimeManager;
+
+        // Important: Bug: Sometimes chunks don't have their meshes built and don't render until modified, figure out why this happens.
 
         public ChunkManager()
         {
             Chunks = new ConcurrentDictionary<Vector3i, Chunk>();
 
-            Builder = new ChunkBuilderProvider();
-            Generator = new ChunkGeneratorProvider(this);
+            Builder = new ChunkBuilderManager();
+            Generator = new ChunkGeneratorManager(this);
             LifetimeManager = new ChunkLifetimeManager(this);
         }
 
@@ -33,15 +35,53 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
         public void ClearChunks()
         {
-            foreach (Chunk chunk in Chunks.Values)
-                chunk.Free();
+            foreach (Chunk chunk in Chunks.Values) chunk.Free();
             Chunks.Clear();
         }
 
-        /// <returns><see langword="null"/> if the chunk is not loaded.</returns>
         public Chunk? GetChunk(Vector3i location)
         {
-            return Chunks.TryGetValue(location, out Chunk? c) ? c : null;
+            return Chunks.TryGetValue(location, out Chunk? chunk) ? chunk : null;
+        }
+
+        /// <summary>
+        /// Attempts to retrieve a block from the world.
+        /// </summary>
+        /// <param name="location">The location of the block in global coordinates.</param>
+        /// <returns>
+        /// <see langword="false"/> if the chunk containing the block is not loaded.
+        /// </returns>
+        public bool TryGetBlock(Vector3i location, out BlockType block)
+        {
+            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertH.PosToChunkBlockIndex(location);
+            if (Chunks.TryGetValue(chunkIndex, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
+            {
+                block = chunk!.Blocks![blockIndex.X, blockIndex.Y, blockIndex.Z];
+                return true;
+            }
+            block = BlockType.Air;
+            return false;
+        }
+
+        /// <summary>
+        /// Attempts to place a block in the world.
+        /// </summary>
+        /// <returns>
+        /// <see langword="false"/> if the chunk the block would be placed in is not loaded or if nothing was changed.
+        /// </returns>
+        public bool TrySetBlock(Vector3i location, BlockType type)
+        {
+            // Split absolute location into chunk & block indexes and get the affected chunk.
+            (Vector3i chunkIndex, Vector3i blockIndex) = ConvertH.PosToChunkBlockIndex(location);
+            if (Chunks.TryGetValue(chunkIndex, out Chunk? chunk) && chunk.GenStage != Chunk.GenStageEnum.NoData)
+            {
+                // If nothing will change exit.
+                if (chunk.Blocks![blockIndex.X, blockIndex.Y, blockIndex.Z] == type) return false;
+                chunk.Blocks[blockIndex.X, blockIndex.Y, blockIndex.Z] = type;
+                RebuildModifiedChunks(chunk, chunkIndex, blockIndex.X, blockIndex.Y, blockIndex.Z);
+                return true;
+            }
+            return false;
         }
 
         /// <summary>
@@ -75,7 +115,9 @@ namespace VoxelGame.Engine.Voxels.Chunks
                 // Rebuild the chunk if the block next to the affected block culls against it.
                 BlockEntry data = Minecraft.Instance.BlockRegistry[chunk.Blocks[x, y, z]];
                 if ((data.Params & BlockParams.DontCull) == 0)
+                {
                     Builder.BuildChunk(chunk, dontDefer: true);
+                }
             }
         }
     }

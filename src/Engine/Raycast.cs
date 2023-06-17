@@ -1,10 +1,11 @@
 ﻿using OpenTK.Mathematics;
 using System;
 using System.Runtime.CompilerServices;
-using VoxelGame.Engine.Voxels;
+using VoxelGame.Engine.Voxels.Chunks;
 using VoxelGame.Framework.Helpers;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
+using VoxelGame.Game.Level;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
 namespace VoxelGame.Engine
@@ -25,15 +26,13 @@ namespace VoxelGame.Engine
         {
             if (direction == Vector3.Zero)
                 throw new ArgumentException("Direction can't be zero!");
-            if (Minecraft.Instance.Session.CurrentWorld == null)
-                throw new InvalidOperationException("No world currently loaded!");
 
             Result res = default;
             sbyte state = 0;
 
             // The cell the ray is currently in.
             Vector3i cell = VectorUtility.FloorVec3(origin);
-            World world = Minecraft.Instance.Session.CurrentWorld!;
+            ChunkManager chunkManager = Minecraft.Instance.Session.ChunkManager;
 
             // Whether to step forward or backward into next cell for each case.
             int stepX = MathF.Sign(direction.X);
@@ -56,7 +55,7 @@ namespace VoxelGame.Engine
             [MethodImpl(INLINE)]
             void exitIfHit(uint enterDirection)
             {
-                if (world.TryGetBlock(cell, out BlockType block) && block != BlockType.Air)
+                if (chunkManager.TryGetBlock(cell, out BlockType block) && block != BlockType.Air)
                 {
                     // Exit and return success and the result.
                     state = 1;

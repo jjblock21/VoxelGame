@@ -5,6 +5,7 @@ using System.Threading;
 using VoxelGame.Framework.Helpers;
 using VoxelGame.Framework.Threading;
 using VoxelGame.Game;
+using VoxelGame.Game.Level;
 
 namespace VoxelGame.Engine.Voxels.Chunks
 {
@@ -97,7 +98,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
         private void ForCubeWithSizeOfRenderDistance(Action<Vector3i> callback)
         {
-            const int radius = Session.RENDER_DIST;
+            const int radius = World.RENDER_DIST;
             VectorUtility.Vec3For(-radius, -radius / 2, -radius, radius, radius / 2, radius, callback);
         }
 
@@ -106,8 +107,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
         /// </summary>
         private bool CheckCylinder(Vector3i vec)
         {
-            if (vec.Y < (-Session.RENDER_DIST / 2) || vec.Y > (Session.RENDER_DIST / 2)) return false;
-            return (vec.X * vec.X + vec.Z * vec.Z) < (Session.RENDER_DIST * Session.RENDER_DIST);
+            if (vec.Y < (-World.RENDER_DIST / 2) || vec.Y > (World.RENDER_DIST / 2)) return false;
+            return (vec.X * vec.X + vec.Z * vec.Z) < (World.RENDER_DIST * World.RENDER_DIST);
         }
 
         public void Dispose()

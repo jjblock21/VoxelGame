@@ -12,6 +12,7 @@ using VoxelGame.Game.Blocks.Models;
 using VoxelGame.Engine.Voxels.Helpers;
 using VoxelGame.Engine.Voxels.Blocks;
 using System.Threading;
+using VoxelGame.Game.Level;
 
 namespace VoxelGame.Game
 {
@@ -25,6 +26,8 @@ namespace VoxelGame.Game
 
         private Session? _session;
         public Session Session => _session!; // This is done to have the property not be nullable
+
+        public World? CurrentWorld { get; private set; }
 
         public SpriteBatch? SpriteBatch { get; private set; }
 
@@ -92,7 +95,7 @@ namespace VoxelGame.Game
         private void BreakBlock()
         {
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
-                Session.CurrentWorld?.TrySetBlock(result.Location, BlockType.Air);
+                Session.ChunkManager.TrySetBlock(result.Location, BlockType.Air);
         }
 
         private void PlaceBlock()
@@ -100,7 +103,7 @@ namespace VoxelGame.Game
             if (Raycast.Perform(_camera!.Translation, _camera!.Forward, 5, out Raycast.Result result))
             {
                 Vector3i location = result.Location + ConvertH.DirToVector(result.FaceDirection);
-                Session.CurrentWorld?.TrySetBlock(location, _blockInHand);
+                Session.ChunkManager.TrySetBlock(location, _blockInHand);
             }
         }
 
@@ -158,10 +161,9 @@ namespace VoxelGame.Game
 
             ErrorHandler.Section("World gen");
 
-            _session.CreateWorld(chunkManager =>
-            {
-                chunkManager.LifetimeManager.MoveCenterChunk(Vector3i.Zero);
-            });
+            CurrentWorld = new World(_session.ChunkManager, _camera!);
+            CurrentWorld.GenerateAsync();
+            Session.RenderWorld = true;
 
             ErrorHandler.Section("Game loop");
         }
@@ -169,10 +171,10 @@ namespace VoxelGame.Game
         private void InitBlocks()
         {
             // Add textures to the texture atlas.
-            TextureAtlas.AddTexture(Resources.ReadImage("textures/stone.png"));
-            TextureAtlas.AddTexture(Resources.ReadImage("textures/earth.png"));
-            TextureAtlas.AddTexture(Resources.ReadImage("textures/wood.png"));
-            TextureAtlas.AddTexture(Resources.ReadImage("textures/debug.png"));
+            TextureAtlas.Append(Resources.ReadImage("textures/stone.png"));
+            TextureAtlas.Append(Resources.ReadImage("textures/earth.png"));
+            TextureAtlas.Append(Resources.ReadImage("textures/wood.png"));
+            TextureAtlas.Append(Resources.ReadImage("textures/debug.png"));
 
             ErrorHandler.Section("Init blocks");
 
@@ -229,6 +231,7 @@ namespace VoxelGame.Game
         public void UpdateFrame(double frameTime)
         {
             _camera!.Update(frameTime);
+            CurrentWorld?.Update();
             Session.Update();
         }
     }

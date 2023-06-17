@@ -2,7 +2,6 @@
 using System.Threading;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework.Threading;
-using CancelTokenSrc = System.Threading.CancellationTokenSource;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {
@@ -33,6 +32,8 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
             if (dontDefer)
             {
+                // TODO: Make sure the same chunk doesn't get rebuilt multiple times.
+
                 // Don't start a task, just hand it off to the main thread for processing there.
                 RenderThreadCallback.Schedule(RenderThreadCallback.Priority.SyncChunkBuild,
                     SYNC_BUILD_COMPUTE_COST, () => ProcessSync(chunk));

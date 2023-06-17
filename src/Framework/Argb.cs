@@ -18,8 +18,7 @@ namespace VoxelGame.Framework
 
         public Argb(float r, float g, float b, float a = 0)
         {
-            Packed = (uint)(a * 255f) << 24 | (uint)(r * 255f) << 16 |
-                   (uint)(g * 255f) << 8 | (uint)(b * 255f);
+            Packed = (uint)(a * 255f) << 24 | (uint)(r * 255f) << 16 | (uint)(g * 255f) << 8 | (uint)(b * 255f);
         }
 
         public Argb(byte r, byte g, byte b, byte a = 255)

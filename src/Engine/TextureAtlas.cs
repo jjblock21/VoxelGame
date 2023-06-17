@@ -42,7 +42,7 @@ namespace VoxelGame.Engine
         /// (The texture will be resized to the tile size of the atlas)
         /// </summary>
         /// <exception cref="OverflowException"/>
-        public void AddTexture(Image<Rgba32> texture)
+        public void Append(Image<Rgba32> texture)
         {
             if (_currentIndex >= Size || _currentSlot.Y >= Height)
                 throw new Exception("Texture atlas is full!");
@@ -55,21 +55,17 @@ namespace VoxelGame.Engine
             Texture.Mutate(c => c.DrawImage(texture, _currentSlot, 1));
             texture.Dispose();
 
-            NextSlot();
-
-            // Put texture coordinates for opengl into array.
-            _textureCoords[_currentIndex] = CalcTexCoords(_currentIndex);
-            _currentIndex++;
-        }
-
-        private void NextSlot()
-        {
+            // Move to the next slot.
             _currentSlot.X += _tileWidth;
             if (_currentSlot.X >= Width)
             {
                 _currentSlot.X = 0;
                 _currentSlot.Y += _tileHeight;
             }
+
+            // Put texture OpenGL coordinates into array.
+            _textureCoords[_currentIndex] = CalcTexCoords(_currentIndex);
+            _currentIndex++;
         }
 
         /// <summary>
@@ -80,8 +76,7 @@ namespace VoxelGame.Engine
         {
             get
             {
-                if (textureIndex > _currentIndex)
-                    throw new IndexOutOfRangeException();
+                if (textureIndex > _currentIndex) throw new IndexOutOfRangeException();
                 return _textureCoords[textureIndex];
             }
         }
