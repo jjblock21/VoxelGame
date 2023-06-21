@@ -85,6 +85,13 @@ namespace VoxelGame.Game
                     if (_blockInHand > BlockType.Wood)
                         _blockInHand = BlockType.Stone;
                     break;
+
+                // Code for debugging chunks with unexpected or illegal state.
+                case Keys.F5:
+                    Vector3i chunkIndex = ConvertH.PosToChunkIndex(_camera!.Translation);
+                    Chunk? chunk = Session.ChunkManager.GetChunk(chunkIndex);
+                    McWindow.Logger.Debug("ljdkfhad"); // Breakpoint would be placed on this line.
+                    break;
             }
         }
 

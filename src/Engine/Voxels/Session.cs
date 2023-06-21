@@ -40,8 +40,8 @@ namespace VoxelGame.Engine.Voxels
 
         public void Free()
         {
-            WorldRenderer.Free();
             ChunkManager.ClearChunks();
+            WorldRenderer.Free();
         }
     }
 }
