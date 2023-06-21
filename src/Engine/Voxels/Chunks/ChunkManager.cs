@@ -18,7 +18,9 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public readonly ChunkGeneratorManager Generator;
         public readonly ChunkLifetimeManager LifetimeManager;
 
-        // Important: Bug: Sometimes chunks don't have their meshes built and don't render until modified, figure out why this happens.
+        //TODO: Implement greedy meshing for full blocks.
+        //TODO: Eliminate arrays passed from block models to reduce GC allocations.
+        //TODO: Calculate average chunk vertex and index list size while building chunks to reduce reallocations of the underlying buffer while adding items.
 
         public ChunkManager()
         {

@@ -25,7 +25,7 @@ namespace VoxelGame.Game
         private const float TURNSPEED = SENSITIVITY / 720 * MathF.PI;
 
         private const float SPEED = 5f;
-        private const float SPRINT_MULTIPLIER = 3f;
+        private const float SPRINT_MULTIPLIER = 10f;
 
         public SpectatorCamera(Vector2i viewport, float fov, Vector3 translation, float yaw, float pitch) :
             base(viewport, fov, BuildTranformMatrix(pitch, yaw, translation))
