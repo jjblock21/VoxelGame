@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Engine.Voxels.Helpers;
+using VoxelGame.Game;
 
 namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
 {
@@ -23,14 +24,16 @@ namespace VoxelGame.Engine.Voxels.Chunks.ChunkGen
             // First check here if the chunk already exists, but if the chunk object is still being created this wont work.
             if (_chunkManager.Chunks.ContainsKey(location)) return;
 
-            // I chose to not do this in a task.
-            Chunk chunk = new Chunk(location);
+            // For some reason this lags when done in a task.
+            Chunk chunk = new Chunk(location, _chunkManager);
 
             if (_chunkManager.Chunks.TryAdd(location, chunk))
-                Task.Factory.StartNew(() => Process(chunk));
+                Task.Factory.StartNew(() => GenerateTask(chunk));
+
+            else McWindow.Logger.Debug("Failed to add chunk to the collection.");
         }
 
-        private void Process(Chunk chunk)
+        private void GenerateTask(Chunk chunk)
         {
             _generator.Value!.Generate(chunk);
             chunk.GenStage = Chunk.GenStageEnum.HasData;

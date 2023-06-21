@@ -36,16 +36,16 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 // Don't start a task, just hand it off to the main thread for processing there.
                 RenderThreadCallback.Schedule(RenderThreadCallback.Priority.SyncChunkBuild,
-                    SYNC_BUILD_COMPUTE_COST, () => ProcessSync(chunk));
+                    SYNC_BUILD_COMPUTE_COST, () => BuildSync(chunk));
             }
             else
             {
-                TaskHelper.StartNewCancelRunning(token => ProcessAsync(chunk, token),
-                    chunk.AsyncBuildState, chunk.BuilderCancelSrc);
+                // You can also start the job directly but this provides slightly better syntax in some cases.
+                chunk.BuildJob.StartCancelPrevious(default);
             }
         }
 
-        private void ProcessAsync(Chunk chunk, CancellationToken token)
+        public void BuildTask(Chunk chunk, CancellationToken token)
         {
             BuildResult result = _processor.Value!.Process(chunk, token);
 
@@ -54,15 +54,10 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                 UPLOAD_COMPUTE_COST, () => UploadMesh(chunk, result));
         }
 
-        private void ProcessSync(Chunk chunk)
+        private void BuildSync(Chunk chunk)
         {
-            // If a task is running or has been dispatched for building cancel it.
-            if (chunk.AsyncBuildState.Value != TaskState.Inert)
-                chunk.BuilderCancelSrc.Cancel();
-
-            // This doesn't cause any problems with another task begin dispatched while this is still running,
-            // because this is running synchronously.
-            chunk.AsyncBuildState.Value = TaskState.Inert;
+            // Cancel running asynchronous tasks.
+            chunk.BuildJob.CancelRunning();
 
             BuildResult result = _processor.Value!.Process(chunk, CancellationToken.None);
             UploadMesh(chunk, result);

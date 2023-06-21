@@ -25,6 +25,7 @@ namespace VoxelGame.Game.Level
 
             // Load all chunks in render distance around the player.
             Vector3i chunkIn = ConvertH.PosToChunkIndex(_playerCamera.Translation);
+            _centerChunk = chunkIn;
             _chunkManager.LifetimeManager.MoveCenterChunk(chunkIn);
         }
 

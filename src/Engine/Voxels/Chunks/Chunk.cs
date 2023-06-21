@@ -1,6 +1,7 @@
 ﻿using OpenTK.Mathematics;
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework;
+using VoxelGame.Framework.Jobs;
 using VoxelGame.Framework.Threading;
 using VoxelGame.Game.Blocks;
 using CancelTokenSrc = System.Threading.CancellationTokenSource;
@@ -15,23 +16,18 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
         public volatile GenStageEnum GenStage; // Note: I don't actually think this needs to be volatile.
 
-        #region Async Stuff
-        public readonly TaskStateWrapper AsyncBuildState;
-        public readonly CancelTokenSrc BuilderCancelSrc;
-        #endregion
+        public readonly RecurringTask<Void> BuildJob;
 
         public readonly Vector3i Location; // Position is stored twice, here and in the worlds dictionary, for ease of use.
         public readonly Vector3i Offset; // Location to be passed to the shader.
 
-        public Chunk(Vector3i location)
+        public Chunk(Vector3i location, ChunkManager chunkManager)
         {
             Location = location;
             Offset = location * 16;
             GenStage = GenStageEnum.NoData;
 
-            // This is a mess.
-            AsyncBuildState = new TaskStateWrapper();
-            BuilderCancelSrc = new CancelTokenSrc();
+            BuildJob = new RecurringTask<Void>((token, _) => chunkManager.Builder.BuildTask(this, token));
         }
 
         /// <summary>
@@ -45,7 +41,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
             Mesh?.Free();
             Blocks = null; // Just in case
 
-            BuilderCancelSrc.Dispose();
+            BuildJob.Dispose();
         }
 
         public enum GenStageEnum

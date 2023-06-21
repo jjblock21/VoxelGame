@@ -5,7 +5,6 @@ using VoxelGame.Engine.Voxels.Chunks;
 using VoxelGame.Framework.Helpers;
 using VoxelGame.Game;
 using VoxelGame.Game.Blocks;
-using VoxelGame.Game.Level;
 using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
 namespace VoxelGame.Engine
