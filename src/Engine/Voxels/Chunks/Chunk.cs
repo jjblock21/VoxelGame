@@ -44,7 +44,6 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             GenStage = GenStageEnum.Disposed;
             BuildJob.Dispose();
-            Blocks = null; // Just in case
         }
 
         public enum GenStageEnum

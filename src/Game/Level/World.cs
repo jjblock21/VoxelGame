@@ -11,7 +11,7 @@ namespace VoxelGame.Game.Level
 
         private Vector3i _centerChunk;
 
-        public const int RENDER_DIST = 2;
+        public const int RENDER_DIST = 4;
 
         public World(ChunkManager chunkManager, SpectatorCamera playerCamera)
         {
