@@ -8,7 +8,7 @@ using CancelTokenSrc = System.Threading.CancellationTokenSource;
 
 namespace VoxelGame.Engine.Voxels.Chunks
 {
-    public class Chunk : IHasDriverResources
+    public class Chunk : IHasDriverResources, System.IDisposable
     {
         // Important: The current threading code assumes reads and writes to these values to be atomic.
         public volatile BlockType[,,]? Blocks;
@@ -37,11 +37,14 @@ namespace VoxelGame.Engine.Voxels.Chunks
         /// </summary>
         public void Free()
         {
-            GenStage = GenStageEnum.Disposed;
             Mesh?.Free();
-            Blocks = null; // Just in case
+        }
 
+        public void Dispose()
+        {
+            GenStage = GenStageEnum.Disposed;
             BuildJob.Dispose();
+            Blocks = null; // Just in case
         }
 
         public enum GenStageEnum

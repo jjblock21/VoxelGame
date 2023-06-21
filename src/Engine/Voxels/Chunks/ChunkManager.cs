@@ -22,6 +22,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
         //TODO: Eliminate arrays passed from block models to reduce GC allocations.
         //TODO: Calculate average chunk vertex and index list size while building chunks to reduce reallocations of the underlying buffer while adding items.
 
+        //Note: The chunk system still has a lot of problems with race conditions if chunks are created and deleted very fast. Should be fine tho.
+
         public ChunkManager()
         {
             Chunks = new ConcurrentDictionary<Vector3i, Chunk>();

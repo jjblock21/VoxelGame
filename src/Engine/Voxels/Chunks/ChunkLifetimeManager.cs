@@ -30,8 +30,8 @@ namespace VoxelGame.Engine.Voxels.Chunks
         // Max amount of chunks that will be deleted synchronously each frame.
         private const float DELETE_CHUNK_COMPUTE_COST = 0.2f;
 
-        private RecurringTask<Vector3i> _createNewJob;
-        private RecurringTask<Vector3i> _deleteOldJob;
+        private RecurringTask<Vector3i> _createNewTask;
+        private RecurringTask<Vector3i> _deleteOldTask;
 
         private ChunkManager _chunkManager;
 
@@ -39,25 +39,28 @@ namespace VoxelGame.Engine.Voxels.Chunks
         {
             _chunkManager = chunkManager;
 
-            _createNewJob = new RecurringTask<Vector3i>((token, center) => CreateNewChunksTask(center));
-            _deleteOldJob = new RecurringTask<Vector3i>((token, center) => DeleteOldChunksTask(center));
+            _createNewTask = new RecurringTask<Vector3i>((token, vec) => CreateNewTask(vec));
+            _deleteOldTask = new RecurringTask<Vector3i>((token, vec) => DeleteOldTask(vec));
         }
 
         public void MoveCenterChunk(Vector3i center)
         {
-            _createNewJob.StartIfPreviousCompleted(center);
-            _deleteOldJob.StartIfPreviousCompleted(center);
+            _createNewTask.StartIfPreviousCompleted(center);
+            _deleteOldTask.StartIfPreviousCompleted(center);
         }
 
-        private void CreateNewChunksTask(Vector3i center)
+        private void CreateNewTask(Vector3i center)
         {
-            ForCubeWithSizeOfRenderDistance(vec =>
+            const int radius = World.RENDER_DIST;
+            // Loop over all chunks in a cube with size of render distance.
+            VectorUtility.Vec3For(-radius, -radius / 2, -radius, radius, radius / 2, radius, vec =>
             {
+                // Check if the chunk is withing the cylinder where chunks are rendered and generate it if it is.
                 if (CheckCylinder(vec)) _chunkManager.Generator.GenChunk(center + vec);
             });
         }
 
-        private void DeleteOldChunksTask(Vector3i center)
+        private void DeleteOldTask(Vector3i center)
         {
             // Note: This is really slow, so I'm using tasks so the renderer can continue while this is working.
 
@@ -66,20 +69,17 @@ namespace VoxelGame.Engine.Voxels.Chunks
 
             foreach (Chunk chunk in toDelete)
             {
+                // Perhaps this might need to be moved to a proper method.
+                chunk.Dispose(); // This is the dispose method that can be called from anywhere.
+
                 // Remove the chunk from the dictionary asynchronously.
                 if (!_chunkManager.Chunks.TryRemove(chunk.Location, out Chunk _))
                     McWindow.Logger.Warn("Removing chunk from collection failed, this is most likely bad");
 
                 // Schedule a call on the main thread to chunk.Free() to delete OpenGL buffers.
                 RenderThreadCallback.Schedule(RenderThreadCallback.Priority.DeleteMesh,
-                    DELETE_CHUNK_COMPUTE_COST, chunk.Free);
+                    DELETE_CHUNK_COMPUTE_COST, chunk.Free); // Free() is the dispose method that must be called from the render thread.
             }
-        }
-
-        private void ForCubeWithSizeOfRenderDistance(Action<Vector3i> callback)
-        {
-            const int radius = World.RENDER_DIST;
-            VectorUtility.Vec3For(-radius, -radius / 2, -radius, radius, radius / 2, radius, callback);
         }
 
         /// <summary>
