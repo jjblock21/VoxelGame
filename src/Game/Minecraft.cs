@@ -13,6 +13,7 @@ using VoxelGame.Engine.Voxels.Helpers;
 using VoxelGame.Engine.Voxels.Blocks;
 using System.Threading;
 using VoxelGame.Game.Level;
+using VoxelGame.Engine.Voxels.Chunks;
 
 namespace VoxelGame.Game
 {
@@ -84,11 +85,6 @@ namespace VoxelGame.Game
                     if (_blockInHand > BlockType.Wood)
                         _blockInHand = BlockType.Stone;
                     break;
-
-                case Keys.F2:
-                    Vector3i chunk = ConvertH.PosToChunkIndex(_camera!.Translation);
-                    Session.ChunkManager.LifetimeManager.MoveCenterChunk(chunk);
-                    break;
             }
         }
 
@@ -133,7 +129,7 @@ namespace VoxelGame.Game
             int worldShader = ShaderCompiler.Compile(Resources.ReadText("shaders/world.glsl"), "world.glsl");
 
             ErrorHandler.Section("Create SpriteBatch");
-            SpriteBatch = new SpriteBatch(spriteShader, 64, Window.Size);
+            SpriteBatch = new SpriteBatch(spriteShader, 256, Window.Size);
 
             ErrorHandler.Section("Initialize fonts");
 
@@ -217,13 +213,15 @@ namespace VoxelGame.Game
             // Render crosshair.
             SpriteBatch.Quad((int)(Window.ClientSize.X * 0.5f - 3.5f), (int)(Window.ClientSize.Y * 0.5f - 3.5f), 14, 14, new Vector4i(0, 0, 7, 7));
             // Render fps text background.
-            SpriteBatch.Quad(0, Window.Size.Y - 46, Window.Size.X / 2, 46, color: new Argb(0f, 0f, 0f, 0.6f));
+            SpriteBatch.Quad(0, Window.Size.Y - 86, Window.Size.X / 2, 86, color: new Argb(0f, 0f, 0f, 0.6f));
 
             SpriteBatch.Flush();
             TextRenderer!.Begin();
 
             TextRenderer.DrawText(5, Window.Size.Y - 20, $"Fps:{Window.FrameRate}", 10);
             TextRenderer.DrawText(5, Window.Size.Y - 40, $"Facing:{_camera!.Forward}", 10);
+            TextRenderer.DrawText(5, Window.Size.Y - 60, $"Location:{_camera!.Translation}", 10);
+            TextRenderer.DrawText(5, Window.Size.Y - 80, $"Chunk:{ConvertH.PosToChunkIndex(_camera!.Translation)}", 10);
 
             TextRenderer.Flush();
         }
