@@ -62,6 +62,7 @@
 
 	<ItemGroup>
 	  <Folder Include="assets\fonts\" />
+	  <Folder Include="Framework\Concurrency\" />
 	</ItemGroup>
 
 </Project>

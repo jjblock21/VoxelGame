@@ -20,7 +20,6 @@ namespace VoxelGame.Engine.Voxels
         public void Render()
         {
             if (!RenderWorld) return;
-
             WorldRenderer.Begin();
 
             // Note: I'm iterating over a dictionary here which is not the best idea, but I couldn't find a better collection satisfying all my needs.

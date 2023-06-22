@@ -2,9 +2,7 @@
 using VoxelGame.Engine.Rendering;
 using VoxelGame.Framework;
 using VoxelGame.Framework.Jobs;
-using VoxelGame.Framework.Threading;
 using VoxelGame.Game.Blocks;
-using CancelTokenSrc = System.Threading.CancellationTokenSource;
 
 namespace VoxelGame.Engine.Voxels.Chunks
 {
