@@ -11,28 +11,52 @@ using static VoxelGame.Framework.Helpers.MethodImplConstants;
 
 namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 {
-    public class ChunkBuilder
+    public class ChunkBuilder : IMeshInterface
     {
         /// <summary>
         /// Vertex buffer stride (not as bits/bytes but as count of entries)
         /// </summary>
         public const int BUFFER_STRIDE = 6;
 
+        //TODO: Rewrite this garbage.
+
         private Chunk? _target;
         private Chunk?[] _neighbours;
-        private List<float> _vertices;
-        private List<uint> _indices;
+        private List<float> _vertexes;
+        private List<uint> _indexes;
 
         private uint _totalVertices;
 
         public ChunkBuilder()
         {
             _neighbours = new Chunk[6];
-            _vertices = new List<float>();
-            _indices = new List<uint>();
+            _vertexes = new List<float>();
+            _indexes = new List<uint>();
             _totalVertices = 0;
         }
 
+        public uint TotalVerts
+        {
+            get => _totalVertices;
+            set => _totalVertices = value;
+        }
+
+        public void AddIndex(uint index)
+        {
+            _indexes.Add(index);
+        }
+
+        public void AddVertex(float x, float y, float z, float textureX, float textureY, float brightness)
+        {
+            _vertexes.Add(x);
+            _vertexes.Add(y);
+            _vertexes.Add(z);
+            _vertexes.Add(textureX);
+            _vertexes.Add(textureY);
+            _vertexes.Add(brightness);
+        }
+
+        [MethodImpl(OPTIMIZE)]
         public ChunkBuilderManager.BuildResult Process(Chunk target, CancellationToken token)
         {
             _target = target;
@@ -60,16 +84,16 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
 
                 var result = new ChunkBuilderManager.BuildResult();
                 token.ThrowIfCancellationRequested();
-                result.VertexData = _vertices.ToArray();
+                result.VertexData = _vertexes.ToArray();
                 token.ThrowIfCancellationRequested();
-                result.IndexData = _indices.ToArray();
+                result.IndexData = _indexes.ToArray();
                 return result;
             }
             finally
             {
                 // Clear the lists to free up memory even if an exception is thrown.
-                _vertices.Clear();
-                _indices.Clear();
+                _vertexes.Clear();
+                _indexes.Clear();
             }
         }
 
@@ -91,11 +115,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                 // If the block should not be culled against other blocks, generate all faces and exit.
                 if ((data.Params & BlockParams.DontCull) != 0)
                 {
-                    if (data.Model.BuildMesh(index, ref _totalVertices, out float[]? verts, out uint[]? ind))
-                    {
-                        _vertices.AddRange(verts!);
-                        _indices.AddRange(ind!);
-                    }
+                    data.Model.BuildMesh(index, this);
                     return;
                 }
 
@@ -105,13 +125,7 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
                 for (uint dir = 0; dir < 6; dir++)
                 {
                     if (ShouldRenderFace(i + ConvertH.DirToVector(dir), data))
-                    {
-                        if (data.Model.BuildFace(dir, index, ref _totalVertices, out float[]? verts, out uint[]? ind))
-                        {
-                            _vertices.AddRange(verts!);
-                            _indices.AddRange(ind!);
-                        }
-                    }
+                        data.Model.BuildFace(dir, index, this);
                 }
             });
         }

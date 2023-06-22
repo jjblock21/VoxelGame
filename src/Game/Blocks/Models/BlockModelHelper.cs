@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using VoxelGame.Engine.Voxels.Blocks;
 using VoxelGame.Engine.Voxels.Chunks.MeshGen;
 
 namespace VoxelGame.Game.Blocks.Models
@@ -43,31 +44,26 @@ namespace VoxelGame.Game.Blocks.Models
         #endregion
 
         #region Create Face
-        public static void CreateFace(uint direction, Vector3i pos, int textureIndex, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
+        public static void CreateFace(uint direction, Vector3i pos, int textureIndex, IMeshInterface meshInterface)
         {
-            vertices = new float[NUM_QUAD_VERTS * ChunkBuilder.BUFFER_STRIDE];
-            indices = new uint[quadIndices.Length];
-
             float[] texCoords = Minecraft.Instance.TextureAtlas[textureIndex];
 
             // Retrieve row containing vertex mappings for face from direction.
             uint vertMappingRow = direction * NUM_QUAD_VERTS;
             for (int i = 0; i < NUM_QUAD_VERTS; i++)
             {
-                int vertIndex = i * ChunkBuilder.BUFFER_STRIDE;
-
                 // For every vertex mapping, retrieve the vertexes row in the vertex array...
                 uint vertRow = faceVertMappings[vertMappingRow + i] * 3;
 
                 // ...and add the coordinates of the vertex in that row to the list.
-                vertices[vertIndex] = cornerVerts[vertRow] + pos.X;
-                vertices[vertIndex + 1] = cornerVerts[vertRow + 1] + pos.Y;
-                vertices[vertIndex + 2] = cornerVerts[vertRow + 2] + pos.Z;
+                float x = cornerVerts[vertRow] + pos.X;
+                float y = cornerVerts[vertRow + 1] + pos.Y;
+                float z = cornerVerts[vertRow + 2] + pos.Z;
 
                 // Add texture coordinates for every vertex.
                 int texCoordRow = i * 2;
-                vertices[vertIndex + 3] = texCoords[texCoordRow];
-                vertices[vertIndex + 4] = texCoords[texCoordRow + 1];
+                float textureX = texCoords[texCoordRow];
+                float textureY = texCoords[texCoordRow + 1];
 
                 // TODO: Prototype
                 float brightness = direction switch
@@ -77,15 +73,16 @@ namespace VoxelGame.Game.Blocks.Models
                     4 => 1f,
                     _ => 0.7f
                 };
-                vertices[vertIndex + 5] = brightness;
+
+                meshInterface.AddVertex(x, y, z, textureX, textureY, brightness);
             }
 
             // Return indexes to form a quad.
             for (uint i = 0; i < quadIndices.Length; i++)
-                indices[i] = quadIndices[i] + totalVerts;
+                meshInterface.AddIndex(quadIndices[i] + meshInterface.TotalVerts);
 
             // Increase the number of total vertices by the number of vertices per face.
-            totalVerts += NUM_QUAD_VERTS;
+            meshInterface.TotalVerts += NUM_QUAD_VERTS;
         }
         #endregion
     }

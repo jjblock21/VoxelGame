@@ -17,6 +17,11 @@ using VoxelGame.Engine.Voxels.Chunks;
 
 namespace VoxelGame.Game
 {
+    /*
+     * Note: Memory consumption rises dramatically when loading new chunks, GC probably can't keep up. (Don't know why, I'm not a genius)
+     * This probably wasn't the best choice of language, but I'm already knee deep in this shit, so I'm just gonna continue.
+     */
+
     public class Minecraft
     {
         private SpectatorCamera? _camera;

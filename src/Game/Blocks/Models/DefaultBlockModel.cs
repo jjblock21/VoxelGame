@@ -14,19 +14,15 @@ namespace VoxelGame.Game.Blocks.Models
             _textureIndex = textureIndex;
         }
 
-        public bool BuildFace(uint dir, Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
+        public void BuildFace(uint dir, Vector3i pos, IMeshInterface meshInterface)
         {
             // Just call the ready made method in the base class.
-            BlockModelHelper.CreateFace(dir, pos, _textureIndex, ref totalVerts, out vertices, out indices);
-            return true;
+            BlockModelHelper.CreateFace(dir, pos, _textureIndex, meshInterface);
         }
 
-        public bool BuildMesh(Vector3i pos, ref uint totalVerts, out float[]? vertices, out uint[]? indices)
+        public void BuildMesh(Vector3i pos, IMeshInterface meshInterface)
         {
             // Output nothing, this should not be used if the block is set up correctly.
-            vertices = null;
-            indices = null;
-            return false;
         }
     }
 }

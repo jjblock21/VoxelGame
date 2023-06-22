@@ -19,7 +19,7 @@ namespace VoxelGame.Engine.Voxels.Chunks
         public readonly ChunkLifetimeManager LifetimeManager;
 
         //TODO: Implement greedy meshing for full blocks.
-        //TODO: Eliminate arrays passed from block models to reduce GC allocations.
+        //TODO: Eliminate arrays passed from block models to reduce GC allocations. (Done)
         //TODO: Calculate average chunk vertex and index list size while building chunks to reduce reallocations of the underlying buffer while adding items.
 
         //Note: The chunk system still has a lot of problems with race conditions if chunks are created and deleted very fast. Should be fine tho.
