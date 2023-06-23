@@ -39,7 +39,7 @@ namespace VoxelGame.Game
                 Size = new Vector2i(STARTUP_WIDTH, STARTUP_HEIGHT),
                 APIVersion = new Version(VERSION_MAJOR, VERSION_MINOR),
                 StartVisible = false,
-                Vsync = VSyncMode.On
+                Vsync = VSyncMode.Off
             })
         {
             _frameCounter = new FrameCounter(1f);

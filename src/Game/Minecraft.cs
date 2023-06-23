@@ -230,6 +230,7 @@ namespace VoxelGame.Game
             SpriteBatch.Flush();
             TextRenderer!.Begin();
 
+            // This causes a lot of string allocations.
             TextRenderer.DrawText(5, Window.Size.Y - 20, $"Fps:{Window.FrameRate}", 10);
             TextRenderer.DrawText(5, Window.Size.Y - 40, $"Facing:{_camera!.Forward}", 10);
             TextRenderer.DrawText(5, Window.Size.Y - 60, $"Location:{_camera!.Translation}", 10);
