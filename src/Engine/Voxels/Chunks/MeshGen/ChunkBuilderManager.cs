@@ -49,6 +49,8 @@ namespace VoxelGame.Engine.Voxels.Chunks.MeshGen
         {
             BuildResult result = _processor.Value!.Process(chunk, token);
 
+            // TODO: Problem: If chunks get uploaded too slowly the pending callbacks take up memory and chunks that are processed after already being deleted again create resources like meshes which aren't properly disposed.
+
             // Schedule a callback on the render thread, where the chunks data is uploaded.
             RenderThreadCallback.Schedule(RenderThreadCallback.Priority.UploadMesh,
                 UPLOAD_COMPUTE_COST, () => UploadMesh(chunk, result));

@@ -3,7 +3,7 @@
 namespace VoxelGame.Framework.Logging
 {
     /// <summary>
-    /// My custom quickly thrown together logging solution, because I was to lazy to learn and implement any proper logging solutions.
+    /// Quickly thrown together logging solution. I was to lazy to learn and implement a proper logger.
     /// </summary>
     public abstract class Logger
     {
